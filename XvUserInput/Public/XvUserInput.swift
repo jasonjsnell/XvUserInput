@@ -42,7 +42,6 @@ public class XvUserInput:UIGestureRecognizer {
     fileprivate var _swipeStartDistanceThreshold:CGFloat = 5
     fileprivate var _swipeEndDistanceThreshold:CGFloat = 50
     
-    
     fileprivate let debug:Bool = true
     
     //singleton code
@@ -88,10 +87,10 @@ public class XvUserInput:UIGestureRecognizer {
         
         if (debug) {
             print("")
-            print("INPUT: Touch began")
+            print("INPUT: touchesBegan")
         }
         
-        //resets
+        //reset
         _isSwipeOccurring = false
         _touchBeganPoint = nil
         
@@ -156,7 +155,7 @@ public class XvUserInput:UIGestureRecognizer {
                 andPointB: _touchBeganPoint!
             )
             
-            if (debug){ print("INPUT: Assessing Swipe, distance", swipeDistance) }
+            //if (debug){ print("INPUT: Assessing Swipe, distance", swipeDistance) }
             
             if (swipeDistance > _swipeStartDistanceThreshold){
                 
@@ -177,7 +176,11 @@ public class XvUserInput:UIGestureRecognizer {
     //called after timer is complete
     internal func touchAssessmentComplete() {
         
-        if (debug) { print("INPUT: Touch assessment complete") }
+        
+        if (debug) {
+            print("")
+            print("INPUT: Touch assessment complete")
+        }
         
         //this determines whether the current touch event is a drag, swipe, or tap inputs
         
@@ -300,7 +303,7 @@ public class XvUserInput:UIGestureRecognizer {
         //MARK: Single tap / touch
         if (_currNumOfTouchesOnScreen < XvUserInputConstants.TOUCHES_TO_TRIGGER_DRAG) {
             
-            UserInputTouchObjects.sharedInstance.allObjectsOff()
+            UserInputTouchObjects.sharedInstance.turnOff(touches: touches)
         }
         
     }

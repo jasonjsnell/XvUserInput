@@ -19,6 +19,7 @@ public class XvUserInputTouchObject:NSObject {
     fileprivate var _touch:UITouch?
     fileprivate var _touchBeganPoint:CGPoint = CGPoint()
     fileprivate var _touchBeganTime:Date = Date()
+    fileprivate var _on:Bool = false
     
     //touch & hold
     fileprivate var _touchAndHoldTimer:Timer = Timer()
@@ -40,7 +41,7 @@ public class XvUserInputTouchObject:NSObject {
         get { return _inputX }
         set {
             self._inputX = newValue
-            if (debug) { print("INPUT: Touch object: Input X set to", newValue) }
+            //if (debug) { print("INPUT OBJ: Input X set to", newValue) }
         }
     }
     
@@ -48,7 +49,7 @@ public class XvUserInputTouchObject:NSObject {
         get { return _inputY }
         set {
             self._inputY = newValue
-            if (debug) { print("INPUT: Touch object: Input Y set to", newValue) }
+            //if (debug) { print("INPUT OBJ: Input Y set to", newValue) }
         }
     }
     
@@ -78,7 +79,7 @@ public class XvUserInputTouchObject:NSObject {
         
         super.init()
         
-        print("new touch object created")
+        print("INPUT OBJ: Init", self)
         _touch = withTouch
         _touchBeganPoint = (withTouch.location(in: inView))
         _touchBeganTime = Date()
@@ -154,17 +155,25 @@ public class XvUserInputTouchObject:NSObject {
     //MARK: - ON
     internal func on(){
         
-        //note on is only for instrument touches
-        if (inputY != -1 && inputX != -1){
+        if (!_on || _isTouchAndHoldOccurring){
             
-            if (debug){ print("INPUT: Object on") }
+            _on = true
             
-            Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOn,
-                userInfo: ["touchObject": self]
-            )
+            //note on is only for instrument touches
+            if (inputY != -1 && inputX != -1){
+                
+                if (debug){ print("INPUT OBJ:", self, "is turning on") }
+                
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputTouchObjectOn,
+                    userInfo: ["touchObject": self]
+                )
+            }
+            
+        } else {
+            
+            if (debug){ print("INPUT OBJ:", self, "is already on") }
         }
-        
     }
     
     
@@ -172,8 +181,9 @@ public class XvUserInputTouchObject:NSObject {
     //MARK: - NOTE OFF
     internal func off(){
         
-        if (debug){ print("INPUT: Object off") }
+        //if (debug){ print("INPUT OBJ: Off") }
         
+        _on = false
     
         //always stop touch and hold on touches ended
         _touchAndHoldCancel()
@@ -211,19 +221,14 @@ public class XvUserInputTouchObject:NSObject {
                 userInfo: ["touchObject": self]
             )
             
-            print("INPUT: Center tap release, object life complete")
+            print("INPUT OBJ: Center tap release, object life complete")
             _lifeComplete()
             
         }
-        
-        
-        
     }
     
     
     fileprivate func _sendMidiNoteOff(afterDelay:Double) {
-        
-        print("INPUT: Send MIDI Note off")
         
         //set up timer for note off command
         _sendMidiOffTimer.invalidate()
@@ -247,7 +252,7 @@ public class XvUserInputTouchObject:NSObject {
         //if this isn't be called from touch and hold...
         if (!_isTouchAndHoldOccurring){
             
-            print("INPUT: MIDI note off has been sent, object life complete")
+            //print("INPUT OBJ: MIDI note off has been sent, object life complete")
             _lifeComplete()
         }
     }
@@ -256,7 +261,7 @@ public class XvUserInputTouchObject:NSObject {
     //MARK: - REMOVE
     fileprivate func _lifeComplete(){
         
-        if (debug){ print("INPUT: Touch object: Life complete") }
+        //if (debug){ print("INPUT OBJ: Touch object: Life complete") }
         
         Utils.postNotification(
             name: XvUserInputConstants.kUserInputTouchObjectLifeComplete,
@@ -275,7 +280,7 @@ public class XvUserInputTouchObject:NSObject {
         _inputX = -1
         _inputY = -1
         
-        if (debug){ print("INPUT: Touch object", self, "removed") }
+        //if (debug){ print("INPUT OBJ: Touch object", self, "removed") }
         
         
     }

@@ -22,9 +22,6 @@ class UserInputTouchObjects {
     
     internal func add(touches: Set<UITouch>, inView:UIView) -> XvUserInputTouchObject? {
         
-        print("Add touches")
-        
-        //TODO: multiple simultaneous taps are coming through as single ones
         //loop through incoming touches
         
         for touch in touches {
@@ -62,8 +59,6 @@ class UserInputTouchObjects {
     
     internal func allObjectsOn(){
         
-        //TODO: how is this called? Is it too much, like only one object should be getthing the note on?
-        
         if (debug) { print("INPUT: All notes on for", touchObjects.count, "objects") }
         
         for touchObject in touchObjects {
@@ -73,15 +68,21 @@ class UserInputTouchObjects {
         
     }
     
-    internal func allObjectsOff(){
+    internal func turnOff(touches:Set<UITouch>){
         
-        //TODO: this maybe be firing too much, like when only 1 object is done, all are being turned off
+        //loop through touchesEnded touches
         
-        if (debug) { print("INPUT: All notes off for", touchObjects.count, "objects") }
-        
-        for touchObject in touchObjects {
+        for touch in touches {
             
-            touchObject.off()
+            //loop through existing objects and see if there is a match
+            for touchObject in touchObjects {
+                
+                if (touch == touchObject.touch){
+                    if (debug) { print("INPUT: Turn", touchObject, "off") }
+                    touchObject.off()
+                    
+                }
+            }
         }
     }
     
