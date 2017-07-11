@@ -98,23 +98,32 @@ public class XvUserInput:UIGestureRecognizer {
         //always add to user input objects, and if it's a swipe or drag, remove them later
         if (self.view != nil){
             
+            //capture first touch vars for swipe and drag
+            let touch:UITouch = touches.first!
+            _touchBeganPoint = touch.location(in: self.view)
+            _currNumOfTouchesOnScreen = event.allTouches!.count
+            
             //MARK: Objects
-            if let touchObject:XvUserInputTouchObject = UserInputTouchObjects.sharedInstance.add(
+            if let touchObjects:[XvUserInputTouchObject] = UserInputTouchObjects.sharedInstance.add(
                 touches: touches,
                 inView: self.view!) {
                 
-                //MARK: Touch data
-                _currNumOfTouchesOnScreen = event.allTouches!.count
-                let touch:UITouch = (event.allTouches!.first)!
-                _touchBeganPoint = touch.location(in: self.view)
+                //loop through the newly created touch objects and post a notification for each
+                for touchObject in touchObjects {
+                    
+                    //MARK: Touch data
+                    let touchBeganPoint = touchObject.touch.location(in: self.view)
+                    
+                    Utils.postNotification(
+                        name: XvUserInputConstants.kUserInputTouchBegan,
+                        userInfo: [
+                            "touchBeganPoint" : touchBeganPoint,
+                            "touchObject" : touchObject
+                        ]
+                    )
+                    
+                }
                 
-                Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputTouchBegan,
-                    userInfo: [
-                        "touchBeganPoint" : _touchBeganPoint!,
-                        "touchObject" : touchObject
-                    ]
-                )
                 
                 //MARK: Touch assessment timer
                 

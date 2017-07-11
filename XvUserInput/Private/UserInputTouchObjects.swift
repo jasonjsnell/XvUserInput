@@ -20,9 +20,11 @@ class UserInputTouchObjects {
     fileprivate init(){}
     
     
-    internal func add(touches: Set<UITouch>, inView:UIView) -> XvUserInputTouchObject? {
+    internal func add(touches: Set<UITouch>, inView:UIView) -> [XvUserInputTouchObject]? {
         
         //loop through incoming touches
+        
+        var newTouchObjects:[XvUserInputTouchObject] = []
         
         for touch in touches {
             
@@ -47,13 +49,20 @@ class UserInputTouchObjects {
                 
                 touchObjects.append(newTouchObject)
                 
-                return newTouchObject
+                newTouchObjects.append(newTouchObject)
                 
             }
             
         }
         
-        return nil
+        if (newTouchObjects.count > 0){
+            
+            return newTouchObjects
+        } else {
+            
+            return nil
+        }
+        
         
     }
     
