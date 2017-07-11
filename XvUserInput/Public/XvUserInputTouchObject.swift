@@ -106,8 +106,7 @@ public class XvUserInputTouchObject:NSObject {
     
     public func startTouchAndHoldTimer(withInterval:Double){
         
-        //TODO: uncomment
-        /*
+        
         _touchAndHoldTimer.invalidate()
         _touchAndHoldTimer = Timer.scheduledTimer(
             timeInterval: withInterval,
@@ -115,7 +114,6 @@ public class XvUserInputTouchObject:NSObject {
             selector: #selector(self._touchAndHoldTimerFire),
             userInfo: nil,
             repeats: true)
-        */
         
     }
     
