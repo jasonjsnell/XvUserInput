@@ -29,6 +29,10 @@ public class XvUserInputTouchObject:NSObject {
     //note on
     fileprivate var _musicalNote:Int = 60
     
+    //to find xvNote when updating touch length
+    fileprivate var _measure:Int = 0
+    fileprivate var _step:Int = 0
+    
     //note off
     fileprivate var _touchLength:TimeInterval = TimeInterval()
     fileprivate var _sendMidiOffTimer:Timer = Timer()
@@ -53,9 +57,19 @@ public class XvUserInputTouchObject:NSObject {
         }
     }
     
+    public var measure:Int {
+        get { return _measure }
+        set { self._measure = newValue }
+    }
+    
     public var musicalNote:Int {
         get { return _musicalNote }
         set { self._musicalNote = newValue }
+    }
+    
+    public var step:Int {
+        get { return _step }
+        set { self._step = newValue }
     }
     
     public var touchBeganPoint:CGPoint {
