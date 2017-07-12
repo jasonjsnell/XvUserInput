@@ -11,6 +11,7 @@ import CoreGraphics
 
 public class XvUserInputTouchObject:NSObject {
     
+    
     fileprivate var _inputX:Int = -1 //position for pitch
     fileprivate var _inputY:Int = -1 //position for instrument
     
@@ -36,6 +37,8 @@ public class XvUserInputTouchObject:NSObject {
     //note off
     fileprivate var _touchLength:TimeInterval = TimeInterval()
     fileprivate var _sendMidiOffTimer:Timer = Timer()
+    
+    fileprivate var _isSwitchOccurring:Bool = false
     
     fileprivate let debug:Bool = true
     
@@ -160,6 +163,22 @@ public class XvUserInputTouchObject:NSObject {
         }
     }
     
+    fileprivate func _resetTouchAndHold(){
+        
+        //record curr interval
+        let timeInterval:TimeInterval = _touchAndHoldTimer.timeInterval
+        
+        //cancel loop
+        _touchAndHoldCancel()
+        
+        //start over time of touch's beginning
+        _touchBeganTime = Date()
+        
+        //restart the timer with the previous interval
+        startTouchAndHoldTimer(withInterval: timeInterval)
+        
+    }
+    
     fileprivate func _touchAndHoldCancel(){
         
         _touchAndHoldTimer.invalidate()
@@ -179,6 +198,7 @@ public class XvUserInputTouchObject:NSObject {
                 
                 if (debug){ print("INPUT OBJ:", self, "is turning on") }
                 
+                //adds new xvnote to system, midi on, anim, etc...
                 Utils.postNotification(
                     name: XvUserInputConstants.kUserInputTouchObjectOn,
                     userInfo: ["touchObject": self]
@@ -193,10 +213,13 @@ public class XvUserInputTouchObject:NSObject {
     
     
     
-    //MARK: - NOTE OFF
+    //MARK: - OFF
+    
+    //called by userInputTouchObjects turnOff touches
+
     internal func off(){
         
-        //if (debug){ print("INPUT OBJ: Off") }
+        if (debug){ print("INPUT OBJ: Off") }
         
         _on = false
     
@@ -207,25 +230,17 @@ public class XvUserInputTouchObject:NSObject {
         //was an instrument area hit, or the center?
         if (_inputX != -1 && _inputY != -1){
             
-            //MARK: Touch length
-            //calc how long it's been since the touch began
-            _touchLength = Date().timeIntervalSince(_touchBeganTime)
-                
-            //push length to at least minimum so each MIDI note can trigger
-            var touchLengthDeficit:Double = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
-                
-            if (_touchLength < XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE){
-                touchLengthDeficit = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE - _touchLength
-                _touchLength = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
-            }
+            //touch length
+            let midiDelay:Double = _updateTouchLength()
             
+            //post notication (updates xvnote length, releases visual anim)
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputTouchObjectOffForInstrument,
                 userInfo: ["touchObject": self]
             )
             
-            //MARK: MIDI note off
-            _sendMidiNoteOff(afterDelay: touchLengthDeficit)
+            //MIDI note off
+            _sendMidiNoteOff(afterDelay: midiDelay)
             
             
         } else {
@@ -264,19 +279,82 @@ public class XvUserInputTouchObject:NSObject {
             userInfo: ["touchObject" : self])
         
         
-        //if this isn't be called from touch and hold...
-        if (!_isTouchAndHoldOccurring){
+        //if this isn't called from touch and hold...
+        //if this isn't called frmo a switch
+        if (!_isTouchAndHoldOccurring && !_isSwitchOccurring){
             
-            //print("INPUT OBJ: MIDI note off has been sent, object life complete")
+            print("INPUT OBJ: MIDI note off has been sent, object life complete")
             _lifeComplete()
         }
+    }
+    
+    //MARK: - SWITCH
+    
+    //used when user drags tap from one y / instrument zone to another
+    public func switchTo(newTouchBeganPoint:CGPoint, newInputX:Int, newInputY:Int) {
+        
+        if (debug){ 
+            print("")
+            print("INPUT OBJ: Switch")
+        }
+        
+        //switch is beginning
+        _isSwitchOccurring = true
+        
+        
+        //MARK: clean up old object
+        
+        //resets
+        _resetTouchAndHold()
+        _on = false
+        
+    
+        //was an instrument area hit?
+        if (_inputX != -1 && _inputY != -1){
+            
+            //update the touch length
+            let _:Double = _updateTouchLength()
+            
+            //post, which updates the XvNote length and releases visual anims
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputTouchObjectOffForInstrument,
+                userInfo: ["touchObject": self]
+            )
+            
+            //immediate midi off
+            _midiNoteOff()
+        
+        } else {
+            
+            //non intrument end (in RPC, a play / pause func)
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputTouchObjectOffForNonInstrument,
+                userInfo: ["touchObject": self]
+            )
+        }
+        
+        
+        
+        //MARK: create new object
+        
+        //update vars
+        _touchBeganPoint = newTouchBeganPoint
+        _inputX = newInputX
+        _inputY = newInputY
+        
+        
+        //turn object on with new vars
+        on()
+        
+        //switch is complete
+        _isSwitchOccurring = false
     }
     
     
     //MARK: - REMOVE
     fileprivate func _lifeComplete(){
         
-        //if (debug){ print("INPUT OBJ: Touch object: Life complete") }
+        if (debug){ print("INPUT OBJ: Touch object: Life complete") }
         
         Utils.postNotification(
             name: XvUserInputConstants.kUserInputTouchObjectLifeComplete,
@@ -300,6 +378,23 @@ public class XvUserInputTouchObject:NSObject {
         
     }
     
+    //MARK: - HELPERS
     
+    //MARK: Touch length
+    fileprivate func _updateTouchLength() -> Double{
+        
+        //calc how long it's been since the touch began
+        _touchLength = Date().timeIntervalSince(_touchBeganTime)
+        
+        //push length to at least minimum so each MIDI note can trigger
+        var touchLengthDeficit:Double = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
+        
+        if (_touchLength < XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE){
+            touchLengthDeficit = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE - _touchLength
+            _touchLength = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
+        }
+        
+        return touchLengthDeficit
+    }
     
 }

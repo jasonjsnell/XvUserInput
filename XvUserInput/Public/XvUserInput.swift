@@ -50,6 +50,19 @@ public class XvUserInput:UIGestureRecognizer {
         super.init(target:nil, action:nil)
     }
     
+    
+    //MARK: ACCESSORS
+    
+    public func getTouchObjects() -> [XvUserInputTouchObject]? {
+        return UserInputTouchObjects.sharedInstance.getTouchObjects()
+    }
+    
+    public func getTouchObject(fromTouch:UITouch) -> XvUserInputTouchObject? {
+        return UserInputTouchObjects.sharedInstance.getTouchObject(fromTouch: fromTouch)
+    }
+    
+   
+    
     /*
      
      Sequence
@@ -80,6 +93,7 @@ public class XvUserInput:UIGestureRecognizer {
      
      */
     
+    //TODO: change all touchesBegan/Moved/Ended notification posts to send whole touches set rather than touchPoint?
     
     //MARK: - TOUCHES BEGAN
     //this fires with each finger that touches the screen
@@ -208,7 +222,7 @@ public class XvUserInput:UIGestureRecognizer {
             
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputDragBegan,
-                userInfo: ["touchBeganPoint": _touchBeganPoint!]
+                userInfo: ["dragBeganPoint": _touchBeganPoint!]
             )
             
             UserInputTouchObjects.sharedInstance.removeAll()
@@ -236,20 +250,14 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        //MARK: Touch assessment
-        let touch:UITouch = (event.allTouches!.first)!
-        let touchMovedPoint:CGPoint = touch.location(in: self.view)
-        
-        Utils.postNotification(
-            name: XvUserInputConstants.kUserInputTouchMoved,
-            userInfo: ["touchMovedPoint": touchMovedPoint]
-        )
+        let firstTouch:UITouch = (event.allTouches!.first)!
+        let firstTouchMovedPoint:CGPoint = firstTouch.location(in: self.view)
         
         //if touch assessment is still occurring...
         if (_touchAssessmentDelayTimer.isValid){
             
             //assess right swipe
-            _assessSwipe(withTouchPoint: touchMovedPoint)
+            _assessSwipe(withTouchPoint: firstTouchMovedPoint)
             
             //then block the remaining code
             return
@@ -258,13 +266,40 @@ public class XvUserInput:UIGestureRecognizer {
         
         //MARK: Drag
         
+        //if above drag threshold
         if (_currNumOfTouchesOnScreen >= XvUserInputConstants.TOUCHES_TO_TRIGGER_DRAG){
             
+            //notify as drag, using first touch as the anchor
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputDragMoved,
-                userInfo: ["touchesMovedPoint": touchMovedPoint]
+                userInfo: ["dragMovedPoint": firstTouchMovedPoint]
             )
+            
+            //then block the remaining code
+            return
         }
+        
+        //MARK: Tap movements
+        
+        //loop through all the touches and post notifications for each
+        for touch in touches {
+            
+            if let touchObject:XvUserInputTouchObject = UserInputTouchObjects.sharedInstance.getTouchObject(fromTouch: touch) {
+                
+                //use current location, not the touch began point
+                let touchMovedPoint = touch.location(in: self.view)
+                
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputTouchMoved,
+                    userInfo: [
+                        "touchMovedPoint" : touchMovedPoint,
+                        "touchObject" : touchObject
+                    ]
+                )
+                
+            }
+        }
+        
     }
     
 
@@ -285,7 +320,7 @@ public class XvUserInput:UIGestureRecognizer {
         
         Utils.postNotification(
             name: XvUserInputConstants.kUserInputDragEnded,
-            userInfo: ["touchEndedPoint": touchEndedPoint]
+            userInfo: ["dragEndedPoint": touchEndedPoint]
         )
         
         //MARK: Swipe
@@ -335,8 +370,8 @@ public class XvUserInput:UIGestureRecognizer {
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputSwipeEnded,
                 userInfo: [
-                    "touchBeganPoint" : _touchBeganPoint!,
-                    "touchEndedPoint" : atTouchPoint
+                    "swipeBeganPoint" : _touchBeganPoint!,
+                    "swipeEndedPoint" : atTouchPoint
                 ]
             )
             

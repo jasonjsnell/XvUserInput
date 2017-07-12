@@ -20,6 +20,8 @@ class UserInputTouchObjects {
     fileprivate init(){}
     
     
+    //MARK: Add
+    
     internal func add(touches: Set<UITouch>, inView:UIView) -> [XvUserInputTouchObject]? {
         
         //loop through incoming touches
@@ -66,6 +68,34 @@ class UserInputTouchObjects {
         
     }
     
+    //MARK: Getters
+    
+    internal func getTouchObjects() -> [XvUserInputTouchObject]? {
+        
+        if (touchObjects.count > 0) {
+            
+            return touchObjects
+        }
+        
+        return nil
+        
+    }
+    
+    internal func getTouchObject(fromTouch:UITouch) -> XvUserInputTouchObject? {
+        
+        for touchObject in touchObjects {
+            
+            if (touchObject.touch) == fromTouch {
+                return touchObject
+            }
+        }
+        
+        return nil
+        
+    }
+    
+    //MARK: On
+    
     internal func allObjectsOn(){
         
         if (debug) { print("INPUT: All notes on for", touchObjects.count, "objects") }
@@ -76,6 +106,8 @@ class UserInputTouchObjects {
         }
         
     }
+    
+    //MARK: Off
     
     internal func turnOff(touches:Set<UITouch>){
         
