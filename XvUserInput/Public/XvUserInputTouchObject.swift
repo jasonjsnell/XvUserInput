@@ -122,6 +122,8 @@ public class XvUserInputTouchObject:NSObject {
     
     internal func _touchAndHoldTimerFire(){
         
+        print("touch and hold timer fire")
+        
         //if a hold is occuring
         if (_isTouchAndHoldOccurring){
 
@@ -140,7 +142,8 @@ public class XvUserInputTouchObject:NSObject {
                 //follow up with midi note off so it's not one long midi note on
                 _sendMidiNoteOff(afterDelay: _touchAndHoldTimer.timeInterval * 0.9)
                 
-            } else {
+            } /*else {
+                
                 
                 //a non instrument area is being held
                 
@@ -151,7 +154,7 @@ public class XvUserInputTouchObject:NSObject {
                 
                 //stop timer so it only sends message once
                 _touchAndHoldCancel()
-            }
+            }*/
             
         } else {
             
@@ -203,6 +206,7 @@ public class XvUserInputTouchObject:NSObject {
                     name: XvUserInputConstants.kUserInputTouchObjectOn,
                     userInfo: ["touchObject": self]
                 )
+            
             }
             
         } else {
@@ -243,17 +247,18 @@ public class XvUserInputTouchObject:NSObject {
             _sendMidiNoteOff(afterDelay: midiDelay)
             
             
-        } else {
+        }  else {
             
-            //non intrument end
+            /*
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForNonInstrument,
+                name: XvUserInputConstants.kUserInputTouchObjectOffForCenter,
                 userInfo: ["touchObject": self]
-            )
+            )*/
             
-            print("INPUT OBJ: Center tap release, object life complete")
+            
+            print("INPUT OBJ: Non-instrument zone, object life complete")
             _lifeComplete()
-            
+ 
         }
     }
     
@@ -324,14 +329,14 @@ public class XvUserInputTouchObject:NSObject {
             //immediate midi off
             _midiNoteOff()
         
-        } else {
+        } /*else {
             
             //non intrument end (in RPC, a play / pause func)
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputTouchObjectOffForNonInstrument,
                 userInfo: ["touchObject": self]
             )
-        }
+        }*/
         
         
         

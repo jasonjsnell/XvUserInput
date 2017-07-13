@@ -38,9 +38,12 @@ public class XvUserInput:UIGestureRecognizer {
     
     //swipe vars (can be changed by app to customize swipe direction and start / end thresholds)
     fileprivate var _isSwipeOccurring:Bool = false
-    fileprivate var _swipeDirection:String = XvUserInputConstants.SWIPE_DIRECTION_ANY
+    fileprivate var _swipeDirection:String = ""
     fileprivate var _swipeStartDistanceThreshold:CGFloat = 5
     fileprivate var _swipeEndDistanceThreshold:CGFloat = 50
+    
+    //center tap
+    fileprivate var _isCenterTapOccurring:Bool = false
     
     fileprivate let debug:Bool = true
     
@@ -51,7 +54,7 @@ public class XvUserInput:UIGestureRecognizer {
     }
     
     
-    //MARK: ACCESSORS
+    //MARK: - ACCESSORS
     
     public func getTouchObjects() -> [XvUserInputTouchObject]? {
         return UserInputTouchObjects.sharedInstance.getTouchObjects()
@@ -59,6 +62,11 @@ public class XvUserInput:UIGestureRecognizer {
     
     public func getTouchObject(fromTouch:UITouch) -> XvUserInputTouchObject? {
         return UserInputTouchObjects.sharedInstance.getTouchObject(fromTouch: fromTouch)
+    }
+    
+    public var swipeDirection:String {
+        get { return _swipeDirection }
+        set { self._swipeDirection = newValue }
     }
     
    
@@ -106,6 +114,7 @@ public class XvUserInput:UIGestureRecognizer {
         
         //reset
         _isSwipeOccurring = false
+        _isCenterTapOccurring = false
         _touchBeganPoint = nil
         
         
@@ -116,6 +125,31 @@ public class XvUserInput:UIGestureRecognizer {
             let touch:UITouch = touches.first!
             _touchBeganPoint = touch.location(in: self.view)
             _currNumOfTouchesOnScreen = event.allTouches!.count
+            
+            //MARK: Center tap
+            
+            if (_currNumOfTouchesOnScreen == 1){
+                
+                //get center point
+                let centerPoint:CGPoint = CGPoint(
+                    x: (self.view!.frame.width) / 2,
+                    y: (self.view!.frame.height) / 2
+                )
+                
+                //get distance from center
+                let distanceFromCenter:CGFloat = Utils.getDistance(
+                    betweenPointA: centerPoint,
+                    andPointB: _touchBeganPoint!
+                )
+                
+                if (distanceFromCenter < XvUserInputConstants.CENTER_BUTTON_RADIUS){
+                    
+                    _isCenterTapOccurring = true
+                    
+                    //block code below, no touch objects or assessment timer
+                    return
+                }
+            }
             
             //MARK: Objects
             if let touchObjects:[XvUserInputTouchObject] = UserInputTouchObjects.sharedInstance.add(
@@ -135,7 +169,6 @@ public class XvUserInput:UIGestureRecognizer {
                             "touchObject" : touchObject
                         ]
                     )
-                    
                 }
                 
                 
@@ -165,34 +198,6 @@ public class XvUserInput:UIGestureRecognizer {
     }
     
     
-    //MARK: Assess swipe
-    //called by touches moved before timer is complete
-    fileprivate func _assessSwipe(withTouchPoint:CGPoint){
-        
-        //need touch point and only 1 touch point
-        if (_touchBeganPoint != nil && _currNumOfTouchesOnScreen == 1){
-            
-            //if there is a big enough positive differents between begin touch and move touch, swipe is occuring
-            let swipeDistance:CGFloat = Utils.getDistance(
-                betweenPointA: withTouchPoint,
-                andPointB: _touchBeganPoint!
-            )
-            
-            //if (debug){ print("INPUT: Assessing Swipe, distance", swipeDistance) }
-            
-            if (swipeDistance > _swipeStartDistanceThreshold){
-                
-                if (debug) { print("INPUT: Swipe is occurring") }
-                _isSwipeOccurring = true
-                
-                Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputSwipeBegan,
-                    userInfo: ["touchBeganPoint": _touchBeganPoint!]
-                )
-            }
-        }
-    }
-    
     
     //MARK: - TOUCH ASSESSMENT COMPLETE
     
@@ -211,6 +216,13 @@ public class XvUserInput:UIGestureRecognizer {
         if (_isSwipeOccurring){
             
             if (debug) { print("INPUT: Swipe is occurring") }
+            
+            UserInputTouchObjects.sharedInstance.removeAll()
+            return
+        }
+        
+        //MARK: Center tap (shouldn't fire, but in case an input gets through)
+        if (_isCenterTapOccurring){
             
             UserInputTouchObjects.sharedInstance.removeAll()
             return
@@ -241,12 +253,71 @@ public class XvUserInput:UIGestureRecognizer {
     }
     
     
+    //MARK: - SWIPE ASSESSMENT
+    //called by touches moved before timer is complete
+    fileprivate func _assessSwipe(withTouchPoint:CGPoint){
+        
+        //need touch point and only 1 touch point
+        if (_touchBeganPoint != nil && _currNumOfTouchesOnScreen == 1){
+            
+            //swipe away from the center RPC
+            if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_AWAY_FROM_CENTER){
+                
+                if (self.view != nil){
+                    
+                    //get distance from center
+                    let swipeDistance:CGFloat = _getSwipeDistanceFromCenter(
+                        startPoint: _touchBeganPoint!,
+                        endPoint: withTouchPoint
+                    )
+                    
+                    print("swipeDistance", swipeDistance)
+                    
+                    //if (debug){ print("INPUT: Assessing Swipe, distance", swipeDistance) }
+                    
+                    if (swipeDistance > _swipeStartDistanceThreshold){
+                        
+                        if (debug) { print("INPUT: Swipe is occurring") }
+                        _isSwipeOccurring = true
+                        
+                    }
+                    
+                } else {
+                    print("INPUT: Error getting view during swipe assessment")
+                }
+                
+                
+                
+            } else if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_RIGHT) {
+                
+                //swipe right RF
+                
+            }
+            
+            //if true, post notification
+            if (_isSwipeOccurring){
+                
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputSwipeBegan,
+                    userInfo: ["touchBeganPoint": _touchBeganPoint!]
+                )
+            }
+        }
+    }
+    
+    
     //MARK: - TOUCHES MOVED
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
         
         //MARK: Swipe
-        //don't execute touch code if right swipe is occurring
+        //don't execute touch moved code if swipe is occurring
         if (_isSwipeOccurring){
+            return
+        }
+        
+        //MARK: Center tap
+        //don't execute touch moved code if center tap is occurring
+        if (_isCenterTapOccurring){
             return
         }
         
@@ -323,15 +394,8 @@ public class XvUserInput:UIGestureRecognizer {
             userInfo: ["dragEndedPoint": touchEndedPoint]
         )
         
-        //MARK: Swipe
-        if (_isSwipeOccurring){
-            
-            _swipeEnded(atTouchPoint: touchEndedPoint)
-            return
-        }
-        
-        //MARK: Fast tap assessment
-        //check to see if it's a very fast tap
+        //MARK: Fast gesture assessment
+        //check to see if it's a very fast gesture
         if (_touchAssessmentDelayTimer.isValid){
             
             //..stop the delay
@@ -340,9 +404,29 @@ public class XvUserInput:UIGestureRecognizer {
             //and fire the assessment code immediately
             touchAssessmentComplete()
             
-            if (debug) { print("INPUT: Very fast tap")}
+            if (debug) { print("INPUT: Very fast gesture")}
             
         }
+        
+        //MARK: Swipe
+        if (_isSwipeOccurring){
+            
+            _swipeEnded(atTouchPoint: touchEndedPoint)
+            return
+        }
+        
+        
+        //MARK: Center tap
+        if (_isCenterTapOccurring){
+            
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputCenterButtonTouch,
+                userInfo: nil
+            )
+            return
+        }
+        
+        
         
         //MARK: Single tap / touch
         if (_currNumOfTouchesOnScreen < XvUserInputConstants.TOUCHES_TO_TRIGGER_DRAG) {
@@ -361,7 +445,13 @@ public class XvUserInput:UIGestureRecognizer {
         }
         
         //confirm swipe was wide enough
-        let swipeDistance:CGFloat = Utils.getDistance(betweenPointA: atTouchPoint, andPointB: _touchBeganPoint!)
+        //get distance from center
+        let swipeDistance:CGFloat = _getSwipeDistanceFromCenter(
+            startPoint: _touchBeganPoint!,
+            endPoint: atTouchPoint
+        )
+        
+        print("swipeDistance end", swipeDistance)
         
         if (swipeDistance > _swipeEndDistanceThreshold){
             
@@ -406,5 +496,25 @@ public class XvUserInput:UIGestureRecognizer {
                 userInfo: nil
             )
         }
+    }
+    
+    //MARK: HELPERS
+    fileprivate func _getSwipeDistanceFromCenter(startPoint:CGPoint, endPoint:CGPoint) -> CGFloat {
+        
+        let centerPoint:CGPoint = CGPoint(
+            x: (self.view!.frame.width) / 2,
+            y: (self.view!.frame.height) / 2
+        )
+        
+        let startPointDistanceFromCenter:CGFloat = Utils.getDistance(
+            betweenPointA: centerPoint,
+            andPointB: startPoint
+        )
+        
+        let endPointPointDistanceFromCenter:CGFloat = Utils.getDistance(
+            betweenPointA: centerPoint,
+            andPointB: endPoint)
+        
+        return endPointPointDistanceFromCenter - startPointDistanceFromCenter
     }
 }

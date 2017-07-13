@@ -16,14 +16,13 @@ public class XvUserInputConstants {
     static let MIN_TAP_LENGTH_FOR_MIDI_NOTE:Double = 0.05
     static let DEFAULT_NOTE_LENGTH:Double = 0.1
     static let TOUCH_AND_HOLD_MIN_DURATION:Double = 2.0 //0.7
+    static let CENTER_BUTTON_RADIUS:CGFloat = 60
     
     
     //MARK: Values
-    public static let SWIPE_DIRECTION_ANY:String = "swipeDirectionAny"
+    public static let SWIPE_DIRECTION_AWAY_FROM_CENTER:String = "swipeDirectionAwayFromCenter"
     public static let SWIPE_DIRECTION_RIGHT:String = "swipeDirectionRight"
-    public static let SWIPE_DIRECTION_LEFT:String = "swipeDirectionLeft"
-    public static let SWIPE_DIRECTION_UP:String = "swipeDirectionUp"
-    public static let SWIPE_DIRECTION_DOWN:String = "swipeDirectionDown"
+    
     
     
     
@@ -43,6 +42,8 @@ public class XvUserInputConstants {
     public static let kUserInputTouchObjectTouchAndHoldOnInstrument:String = "kUserInputTouchObjectTouchAndHoldOnInstrument"
     public static let kUserInputTouchObjectTouchAndHoldOnNonInstrument:String = "kUserInputTouchObjectTouchAndHoldOnNonInstrument"
     
+    public static let kUserInputCenterButtonTouch:String = "kUserInputCenterButtonTouch"
+    
     
     
     
@@ -50,7 +51,7 @@ public class XvUserInputConstants {
     
     public static let kUserInputTouchObjectOn:String = "kUserInputTouchObjectOn"
     public static let kUserInputTouchObjectOffForInstrument:String = "kUserInputTouchObjectOffForInstrument"
-    public static let kUserInputTouchObjectOffForNonInstrument:String = "kUserInputTouchObjectOffForNonInstrument"
+    public static let kUserInputTouchObjectOffForCenter:String = "kUserInputTouchObjectOffForCenter"
     public static let kUserInputTouchObjectMidiNoteOff:String = "kUserInputTouchObjectMidiNoteOff"
     public static let kUserInputTouchObjectLifeComplete:String = "kUserInputTouchObjectLifeComplete"
     
