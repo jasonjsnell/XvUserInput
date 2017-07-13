@@ -15,7 +15,7 @@ public class XvUserInputConstants {
     static let TOUCHES_TO_TRIGGER_DRAG:Int = 4
     static let MIN_TAP_LENGTH_FOR_MIDI_NOTE:Double = 0.05
     static let DEFAULT_NOTE_LENGTH:Double = 0.1
-    static let TOUCH_AND_HOLD_MIN_DURATION:Double = 2.0 //0.7
+    static let TOUCH_AND_HOLD_MIN_DURATION:Double = 1.2 //0.7
     static let CENTER_BUTTON_RADIUS:CGFloat = 60
     
     
@@ -39,8 +39,9 @@ public class XvUserInputConstants {
     public static let kUserInputSwipeBegan:String = "kUserInputSwipeBegan"
     public static let kUserInputSwipeEnded:String = "kUserInputSwipeEnded"
     
-    public static let kUserInputTouchObjectTouchAndHoldOnInstrument:String = "kUserInputTouchObjectTouchAndHoldOnInstrument"
-    public static let kUserInputTouchObjectTouchAndHoldOnNonInstrument:String = "kUserInputTouchObjectTouchAndHoldOnNonInstrument"
+    public static let kUserInputTouchAndHoldOnInstrument:String = "kUserInputTouchAndHoldOnInstrument"
+    public static let kUserInputTouchAndHoldOnCenter:String = "kUserInputTouchAndHoldOnCenter"
+    public static let kUserInputTouchAndHoldOnNonInstrument:String = "kUserInputTouchAndHoldOnNonInstrument"
     
     public static let kUserInputCenterButtonTouch:String = "kUserInputCenterButtonTouch"
     

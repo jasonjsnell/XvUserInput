@@ -122,8 +122,6 @@ public class XvUserInputTouchObject:NSObject {
     
     internal func _touchAndHoldTimerFire(){
         
-        print("touch and hold timer fire")
-        
         //if a hold is occuring
         if (_isTouchAndHoldOccurring){
 
@@ -131,7 +129,7 @@ public class XvUserInputTouchObject:NSObject {
             if (inputY != -1){
                 
                 Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputTouchObjectTouchAndHoldOnInstrument,
+                    name: XvUserInputConstants.kUserInputTouchAndHoldOnInstrument,
                     userInfo: ["touchObject": self]
                 )
                 
@@ -142,19 +140,17 @@ public class XvUserInputTouchObject:NSObject {
                 //follow up with midi note off so it's not one long midi note on
                 _sendMidiNoteOff(afterDelay: _touchAndHoldTimer.timeInterval * 0.9)
                 
-            } /*else {
+            } else {
                 
-                
-                //a non instrument area is being held
                 
                 Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputTouchObjectTouchAndHoldOnNonInstrument,
+                    name: XvUserInputConstants.kUserInputTouchAndHoldOnNonInstrument,
                     userInfo: ["touchObject": self]
                 )
                 
                 //stop timer so it only sends message once
                 _touchAndHoldCancel()
-            }*/
+            }
             
         } else {
             

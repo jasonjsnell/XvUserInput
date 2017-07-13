@@ -43,7 +43,8 @@ public class XvUserInput:UIGestureRecognizer {
     fileprivate var _swipeEndDistanceThreshold:CGFloat = 50
     
     //center tap
-    fileprivate var _isCenterTapOccurring:Bool = false
+    fileprivate var _isCenterTouchOccurring:Bool = false
+    fileprivate var _isCenterTouchAndHoldOccurring:Bool = false
     
     fileprivate let debug:Bool = true
     
@@ -51,6 +52,13 @@ public class XvUserInput:UIGestureRecognizer {
     public static let sharedInstance = XvUserInput()
     fileprivate init(){
         super.init(target:nil, action:nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(_assessTouchAndHoldOnNonInstrument),
+            name: Notification.Name(rawValue: XvUserInputConstants.kUserInputTouchAndHoldOnNonInstrument),
+            object: nil
+        )
     }
     
     
@@ -78,30 +86,33 @@ public class XvUserInput:UIGestureRecognizer {
      1. touchesBegan
      Start a short timer to give the interface a split second to determine the touch
      - A. Is it a one finger swipe?
-     - B. Is it a three finger drag?
-     - C. Is it a tap?
+     - B. Is it a multi-finger drag?
+     - C. Is it an instrument tap?
+     - D. Is it a center tap?
      
      2. touchAssessmentComplete
      At this point the system knows the type of interaction
-     - A. Wait and see
+     - A. If swipe, block other code
      - B. Show tempo controller
      - C. Send note on command into touch objects
+     - D. Nothing
      
      
      3. touchesMoved
-     - A. Nothing
+     - A. Assess for swipe until assessment is complete
      - B. Adjust tempo controller
      - C. Cancel if movement is a swipe or drag
+     - D. If moved off center, cancel input
      
      
      4. touchesEnded
      - A. Clear that rows instrument
      - B. Release tempo controller
      - C. Send note off command into touch objects
+     - D. Play / pause system
      
      */
-    
-    //TODO: change all touchesBegan/Moved/Ended notification posts to send whole touches set rather than touchPoint?
+ 
     
     //MARK: - TOUCHES BEGAN
     //this fires with each finger that touches the screen
@@ -114,7 +125,8 @@ public class XvUserInput:UIGestureRecognizer {
         
         //reset
         _isSwipeOccurring = false
-        _isCenterTapOccurring = false
+        _isCenterTouchOccurring = false
+        _isCenterTouchAndHoldOccurring = false
         _touchBeganPoint = nil
         
         
@@ -126,30 +138,6 @@ public class XvUserInput:UIGestureRecognizer {
             _touchBeganPoint = touch.location(in: self.view)
             _currNumOfTouchesOnScreen = event.allTouches!.count
             
-            //MARK: Center tap
-            
-            if (_currNumOfTouchesOnScreen == 1){
-                
-                //get center point
-                let centerPoint:CGPoint = CGPoint(
-                    x: (self.view!.frame.width) / 2,
-                    y: (self.view!.frame.height) / 2
-                )
-                
-                //get distance from center
-                let distanceFromCenter:CGFloat = Utils.getDistance(
-                    betweenPointA: centerPoint,
-                    andPointB: _touchBeganPoint!
-                )
-                
-                if (distanceFromCenter < XvUserInputConstants.CENTER_BUTTON_RADIUS){
-                    
-                    _isCenterTapOccurring = true
-                    
-                    //block code below, no touch objects or assessment timer
-                    return
-                }
-            }
             
             //MARK: Objects
             if let touchObjects:[XvUserInputTouchObject] = UserInputTouchObjects.sharedInstance.add(
@@ -194,23 +182,37 @@ public class XvUserInput:UIGestureRecognizer {
             
             print("INPUT: View is nil during touchesBegan")
         }
-        
     }
-    
-    
+
     
     //MARK: - TOUCH ASSESSMENT COMPLETE
     
     //called after timer is complete
     internal func touchAssessmentComplete() {
         
-        
         if (debug) {
             print("")
             print("INPUT: Touch assessment complete")
         }
         
+        Utils.postNotification(
+            name: XvUserInputConstants.kUserInputTouchAssessmentComplete,
+            userInfo: nil
+        )
+        
         //this determines whether the current touch event is a drag, swipe, or tap inputs
+        
+        //MARK: Center tap
+       
+        if (_currNumOfTouchesOnScreen == 1){
+            
+            //test to see if touch is in center
+            _isCenterTouchOccurring = _isInCenter(touchPoint: _touchBeganPoint!)
+            
+            if (_isCenterTouchOccurring) {
+                return
+            }
+        }
         
         //MARK: Swipe
         if (_isSwipeOccurring){
@@ -221,12 +223,6 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        //MARK: Center tap (shouldn't fire, but in case an input gets through)
-        if (_isCenterTapOccurring){
-            
-            UserInputTouchObjects.sharedInstance.removeAll()
-            return
-        }
         
         //MARK: Drag
         
@@ -241,11 +237,6 @@ public class XvUserInput:UIGestureRecognizer {
             return
             
         }
-        
-        Utils.postNotification(
-            name: XvUserInputConstants.kUserInputTouchAssessmentComplete,
-            userInfo: nil
-        )
         
         //MARK: Single taps
         UserInputTouchObjects.sharedInstance.allObjectsOn()
@@ -271,21 +262,17 @@ public class XvUserInput:UIGestureRecognizer {
                         endPoint: withTouchPoint
                     )
                     
-                    print("swipeDistance", swipeDistance)
-                    
                     //if (debug){ print("INPUT: Assessing Swipe, distance", swipeDistance) }
                     
                     if (swipeDistance > _swipeStartDistanceThreshold){
                         
                         if (debug) { print("INPUT: Swipe is occurring") }
                         _isSwipeOccurring = true
-                        
                     }
                     
                 } else {
                     print("INPUT: Error getting view during swipe assessment")
                 }
-                
                 
                 
             } else if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_RIGHT) {
@@ -305,9 +292,49 @@ public class XvUserInput:UIGestureRecognizer {
         }
     }
     
+    //MARK: - ASSESS TOUCH & HOLD
+    
+    public func _assessTouchAndHoldOnNonInstrument(notification:Notification) -> Void {
+        
+        //assess touch and hold notification from non instrument
+        if (_isCenterTouchOccurring) {
+            
+            _isCenterTouchAndHoldOccurring = true
+            
+            //if it's a center touch and hold, post new notification
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputTouchAndHoldOnCenter,
+                userInfo: nil
+            )
+            
+        }
+        
+    }
     
     //MARK: - TOUCHES MOVED
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        
+        let firstTouch:UITouch = (event.allTouches!.first)!
+        let firstTouchMovedPoint:CGPoint = firstTouch.location(in: self.view)
+        
+        //MARK: Center tap
+        
+        //if tap started in center...
+        if (_isCenterTouchOccurring){
+            
+            //is it still in center?
+            let isStillInCenter:Bool = _isInCenter(touchPoint: firstTouchMovedPoint)
+            
+            //if not
+            if (!isStillInCenter){
+                
+                //drop all objects
+                UserInputTouchObjects.sharedInstance.removeAll()
+                return
+            }
+            
+            return
+        }
         
         //MARK: Swipe
         //don't execute touch moved code if swipe is occurring
@@ -315,14 +342,6 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        //MARK: Center tap
-        //don't execute touch moved code if center tap is occurring
-        if (_isCenterTapOccurring){
-            return
-        }
-        
-        let firstTouch:UITouch = (event.allTouches!.first)!
-        let firstTouchMovedPoint:CGPoint = firstTouch.location(in: self.view)
         
         //if touch assessment is still occurring...
         if (_touchAssessmentDelayTimer.isValid){
@@ -382,8 +401,8 @@ public class XvUserInput:UIGestureRecognizer {
             print("INPUT: Touch ended")
         }
         
-        let touch:UITouch = (event.allTouches!.first)!
-        let touchEndedPoint:CGPoint = touch.location(in: self.view)
+        let firstTouch:UITouch = (event.allTouches!.first)!
+        let firstTouchEndedPoint:CGPoint = firstTouch.location(in: self.view)
         
         //MARK: Drag
         //always hide tempo controller as soon as any touch stops
@@ -391,7 +410,7 @@ public class XvUserInput:UIGestureRecognizer {
         
         Utils.postNotification(
             name: XvUserInputConstants.kUserInputDragEnded,
-            userInfo: ["dragEndedPoint": touchEndedPoint]
+            userInfo: ["dragEndedPoint": firstTouchEndedPoint]
         )
         
         //MARK: Fast gesture assessment
@@ -411,18 +430,30 @@ public class XvUserInput:UIGestureRecognizer {
         //MARK: Swipe
         if (_isSwipeOccurring){
             
-            _swipeEnded(atTouchPoint: touchEndedPoint)
+            _swipeEnded(atTouchPoint: firstTouchEndedPoint)
             return
         }
         
         
         //MARK: Center tap
-        if (_isCenterTapOccurring){
+        if (_isCenterTouchOccurring){
             
-            Utils.postNotification(
-                name: XvUserInputConstants.kUserInputCenterButtonTouch,
-                userInfo: nil
-            )
+            //is it still in center?
+            let isStillInCenter:Bool = _isInCenter(touchPoint: firstTouchEndedPoint)
+            
+            //if still in center and it's not a touch and hold
+            if (isStillInCenter && !_isCenterTouchAndHoldOccurring){
+                
+                //post notification for center button touch
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputCenterButtonTouch,
+                    userInfo: nil
+                )
+                
+                //cleanup
+                UserInputTouchObjects.sharedInstance.removeAll()
+            }
+            
             return
         }
         
@@ -499,6 +530,30 @@ public class XvUserInput:UIGestureRecognizer {
     }
     
     //MARK: HELPERS
+    fileprivate func _isInCenter(touchPoint:CGPoint) -> Bool {
+        
+        var _centerBool:Bool = false
+        
+        //get center point
+        let centerPoint:CGPoint = CGPoint(
+            x: (self.view!.frame.width) / 2,
+            y: (self.view!.frame.height) / 2
+        )
+        
+        //get distance from center
+        let distanceFromCenter:CGFloat = Utils.getDistance(
+            betweenPointA: centerPoint,
+            andPointB: touchPoint
+        )
+        
+        if (distanceFromCenter < XvUserInputConstants.CENTER_BUTTON_RADIUS){
+            
+            _centerBool = true
+        }
+        
+        return _centerBool
+    }
+    
     fileprivate func _getSwipeDistanceFromCenter(startPoint:CGPoint, endPoint:CGPoint) -> CGFloat {
         
         let centerPoint:CGPoint = CGPoint(
