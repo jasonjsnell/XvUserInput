@@ -277,7 +277,7 @@ public class XvUserInputTouchObject:NSObject {
         //if this isn't called frmo a switch
         if (!_isTouchAndHoldOccurring && !_isSwitchOccurring){
             
-            print("INPUT OBJ: MIDI note off has been sent, object life complete")
+            if (debug) { print("INPUT OBJ: MIDI note off has been sent, object life complete") }
             _lifeComplete()
         }
     }
