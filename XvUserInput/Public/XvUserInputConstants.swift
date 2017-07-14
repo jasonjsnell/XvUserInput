@@ -52,7 +52,7 @@ public class XvUserInputConstants {
     
     public static let kUserInputTouchObjectOn:String = "kUserInputTouchObjectOn"
     public static let kUserInputTouchObjectOffForInstrument:String = "kUserInputTouchObjectOffForInstrument"
-    public static let kUserInputTouchObjectOffForCenter:String = "kUserInputTouchObjectOffForCenter"
+    
     public static let kUserInputTouchObjectMidiNoteOff:String = "kUserInputTouchObjectMidiNoteOff"
     public static let kUserInputTouchObjectLifeComplete:String = "kUserInputTouchObjectLifeComplete"
     

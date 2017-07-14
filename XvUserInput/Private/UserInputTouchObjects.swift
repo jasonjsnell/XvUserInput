@@ -13,7 +13,7 @@ class UserInputTouchObjects {
     
     fileprivate var touchObjects:[XvUserInputTouchObject] = []
     
-    fileprivate let debug:Bool = true
+    fileprivate let debug:Bool = false
     
     //singleton code
     static public let sharedInstance = UserInputTouchObjects()
@@ -36,7 +36,6 @@ class UserInputTouchObjects {
             for touchObject in touchObjects {
                 
                 if (touch == touchObject.touch){
-                    print("already recorded")
                     alreadyRecorded = true
                 }
             }
@@ -131,7 +130,7 @@ class UserInputTouchObjects {
     
     internal func removeAll(){
         
-        print("INPUT: Remove all", touchObjects.count, "touch objects")
+        if (debug) { print("INPUT: Remove all", touchObjects.count, "touch objects") }
         
         //loop through and remove all
         for touchObject in touchObjects {
@@ -143,7 +142,7 @@ class UserInputTouchObjects {
     
     internal func remove(touchObject:XvUserInputTouchObject){
         
-        print("INPUT: remove", touchObject)
+        if (debug) { print("INPUT: remove", touchObject) }
         
         //run local removal code
         touchObject.remove()

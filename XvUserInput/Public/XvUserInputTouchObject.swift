@@ -40,7 +40,7 @@ public class XvUserInputTouchObject:NSObject {
     
     fileprivate var _isSwitchOccurring:Bool = false
     
-    fileprivate let debug:Bool = true
+    fileprivate let debug:Bool = false
     
     //MARK: GETTERS / SETTERS
     
@@ -96,7 +96,7 @@ public class XvUserInputTouchObject:NSObject {
         
         super.init()
         
-        print("INPUT OBJ: Init", self)
+        if (debug){ print("INPUT OBJ: Init", self) }
         _touch = withTouch
         _touchBeganPoint = (withTouch.location(in: inView))
         _touchBeganTime = Date()
@@ -245,14 +245,7 @@ public class XvUserInputTouchObject:NSObject {
             
         }  else {
             
-            /*
-            Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForCenter,
-                userInfo: ["touchObject": self]
-            )*/
-            
-            
-            print("INPUT OBJ: Non-instrument zone, object life complete")
+            if (debug) { print("INPUT OBJ: Non-instrument zone, object life complete") }
             _lifeComplete()
  
         }

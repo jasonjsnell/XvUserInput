@@ -46,7 +46,7 @@ public class XvUserInput:UIGestureRecognizer {
     fileprivate var _isCenterTouchOccurring:Bool = false
     fileprivate var _isCenterTouchAndHoldOccurring:Bool = false
     
-    fileprivate let debug:Bool = true
+    fileprivate let debug:Bool = false
     
     //singleton code
     public static let sharedInstance = XvUserInput()
