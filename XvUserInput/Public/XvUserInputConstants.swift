@@ -11,7 +11,7 @@ import Foundation
 public class XvUserInputConstants {
     
     //MARK: Constants
-    static let TOUCH_ASSESSMENT_DELAY:Double = 0.05 //0.08
+    static let TOUCH_ASSESSMENT_DELAY:Double = 0.05 // can go down to 0.03 if tempo controller gets moved to a modulation panel
     static let TOUCHES_TO_TRIGGER_DRAG:Int = 4
     static let MIN_TAP_LENGTH_FOR_MIDI_NOTE:Double = 0.05
     static let DEFAULT_NOTE_LENGTH:Double = 0.1
