@@ -482,8 +482,6 @@ public class XvUserInput:UIGestureRecognizer {
             endPoint: atTouchPoint
         )
         
-        print("swipeDistance end", swipeDistance)
-        
         if (swipeDistance > _swipeEndDistanceThreshold){
             
             if (debug) { print("INPUT: Swipe has occurred") }
