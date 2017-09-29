@@ -120,7 +120,7 @@ public class XvUserInputTouchObject:NSObject {
         
     }
     
-    internal func _touchAndHoldTimerFire(){
+    @objc internal func _touchAndHoldTimerFire(){
         
         //if a hold is occuring
         if (_isTouchAndHoldOccurring){
@@ -266,7 +266,7 @@ public class XvUserInputTouchObject:NSObject {
     }
     
     
-    internal func _midiNoteOff(){
+    @objc internal func _midiNoteOff(){
         
         Utils.postNotification(
             name: XvUserInputConstants.kUserInputTouchObjectMidiNoteOff,

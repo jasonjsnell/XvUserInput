@@ -188,7 +188,7 @@ public class XvUserInput:UIGestureRecognizer {
     //MARK: - TOUCH ASSESSMENT COMPLETE
     
     //called after timer is complete
-    internal func touchAssessmentComplete() {
+    @objc internal func touchAssessmentComplete() {
         
         if (debug) {
             print("")
@@ -294,7 +294,7 @@ public class XvUserInput:UIGestureRecognizer {
     
     //MARK: - ASSESS TOUCH & HOLD
     
-    public func _assessTouchAndHoldOnNonInstrument(notification:Notification) -> Void {
+    @objc public func _assessTouchAndHoldOnNonInstrument(notification:Notification) -> Void {
         
         //assess touch and hold notification from non instrument
         if (_isCenterTouchOccurring) {
