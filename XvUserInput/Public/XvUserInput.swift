@@ -51,7 +51,7 @@ public class XvUserInput:UIGestureRecognizer {
     fileprivate var _isCenterTouchOccurring:Bool = false
     fileprivate var _isCenterTouchAndHoldOccurring:Bool = false
     
-    fileprivate let debug:Bool = false
+    fileprivate let debug:Bool = true
     
     //singleton code
     public static let sharedInstance = XvUserInput()
@@ -134,27 +134,31 @@ public class XvUserInput:UIGestureRecognizer {
         _isCenterTouchAndHoldOccurring = false
         _touchBeganPoint = nil
         
+        print("reset")
         
         //always add to user input objects, and if it's a swipe or drag, remove them later
         if (self.view != nil){
             
+            print("view is good")
             //capture first touch vars for swipe and drag
             let touch:UITouch = touches.first!
             _touchBeganPoint = touch.location(in: self.view)
             _currNumOfTouchesOnScreen = event.allTouches!.count
             
-            
+            print("create touch object?")
             //MARK: Objects
             if let touchObjects:[XvUserInputTouchObject] = UserInputTouchObjects.sharedInstance.add(
                 touches: touches,
                 inView: self.view!) {
                 
+                print("all touches loop")
                 //loop through the newly created touch objects and post a notification for each
                 for touchObject in touchObjects {
                     
                     //MARK: Touch data
                     let touchBeganPoint = touchObject.touch.location(in: self.view)
                     
+                    print("post notification")
                     Utils.postNotification(
                         name: XvUserInputConstants.kUserInputTouchBegan,
                         userInfo: [
@@ -170,6 +174,7 @@ public class XvUserInput:UIGestureRecognizer {
                 //create a short delay before executing touch began code
                 //this allows enough time for the system to determine the type of touch
                 
+                print("touch assessment timer")
                 _touchAssessmentDelayTimer.invalidate()
                 _touchAssessmentDelayTimer = Timer.scheduledTimer(
                     timeInterval: XvUserInputConstants.TOUCH_ASSESSMENT_DELAY,
