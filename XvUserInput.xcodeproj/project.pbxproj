@@ -13,6 +13,9 @@
 		96137A661F120D4900B76ED5 /* XvUserInputTouchObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96137A651F120D4900B76ED5 /* XvUserInputTouchObject.swift */; };
 		96137A6A1F120E5C00B76ED5 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96137A691F120E5C00B76ED5 /* Utils.swift */; };
 		96137A6C1F120FF700B76ED5 /* UserInputTouchObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96137A6B1F120FF700B76ED5 /* UserInputTouchObjects.swift */; };
+		9645A1761F884FCF000CAFC2 /* CircleFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9645A1751F884FCF000CAFC2 /* CircleFit.swift */; };
+		9645A1781F884FF7000CAFC2 /* XvCircleGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9645A1771F884FF7000CAFC2 /* XvCircleGestureRecognizer.swift */; };
+		9645A17A1F88511C000CAFC2 /* Circle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9645A1791F88511C000CAFC2 /* Circle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		96137A651F120D4900B76ED5 /* XvUserInputTouchObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = XvUserInputTouchObject.swift; path = XvUserInput/Public/XvUserInputTouchObject.swift; sourceTree = "<group>"; };
 		96137A691F120E5C00B76ED5 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Utils.swift; path = XvUserInput/Private/Utils.swift; sourceTree = "<group>"; };
 		96137A6B1F120FF700B76ED5 /* UserInputTouchObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserInputTouchObjects.swift; path = XvUserInput/Private/UserInputTouchObjects.swift; sourceTree = "<group>"; };
+		9645A1751F884FCF000CAFC2 /* CircleFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CircleFit.swift; path = XvUserInput/Private/CircleFit.swift; sourceTree = "<group>"; };
+		9645A1771F884FF7000CAFC2 /* XvCircleGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XvCircleGestureRecognizer.swift; path = XvUserInput/Public/XvCircleGestureRecognizer.swift; sourceTree = "<group>"; };
+		9645A1791F88511C000CAFC2 /* Circle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Circle.swift; path = XvUserInput/Private/Circle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +49,7 @@
 				96137A5D1F120CE400B76ED5 /* XvUserInput.swift */,
 				96137A5F1F120CF900B76ED5 /* XvUserInputConstants.swift */,
 				96137A651F120D4900B76ED5 /* XvUserInputTouchObject.swift */,
+				9645A1771F884FF7000CAFC2 /* XvCircleGestureRecognizer.swift */,
 				96137A561F120C8400B76ED5 /* Private */,
 				96137A4C1F120C3300B76ED5 /* Products */,
 			);
@@ -69,6 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				96137A6B1F120FF700B76ED5 /* UserInputTouchObjects.swift */,
+				9645A1791F88511C000CAFC2 /* Circle.swift */,
+				9645A1751F884FCF000CAFC2 /* CircleFit.swift */,
 				96137A691F120E5C00B76ED5 /* Utils.swift */,
 				96137A4D1F120C3300B76ED5 /* XvUserInput */,
 			);
@@ -157,8 +166,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				96137A6A1F120E5C00B76ED5 /* Utils.swift in Sources */,
+				9645A17A1F88511C000CAFC2 /* Circle.swift in Sources */,
+				9645A1781F884FF7000CAFC2 /* XvCircleGestureRecognizer.swift in Sources */,
 				96137A661F120D4900B76ED5 /* XvUserInputTouchObject.swift in Sources */,
 				96137A5E1F120CE400B76ED5 /* XvUserInput.swift in Sources */,
+				9645A1761F884FCF000CAFC2 /* CircleFit.swift in Sources */,
 				96137A6C1F120FF700B76ED5 /* UserInputTouchObjects.swift in Sources */,
 				96137A601F120CF900B76ED5 /* XvUserInputConstants.swift in Sources */,
 			);

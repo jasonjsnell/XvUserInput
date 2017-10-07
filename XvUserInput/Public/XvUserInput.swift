@@ -42,6 +42,9 @@ public class XvUserInput:UIGestureRecognizer {
     fileprivate var _swipeStartDistanceThreshold:CGFloat = 5
     fileprivate var _swipeEndDistanceThreshold:CGFloat = 50
     
+    //rotation
+    fileprivate var _isRotationOccurring:Bool = false
+    
     //center tap
     fileprivate var _isCenterTouchOccurring:Bool = false
     fileprivate var _isCenterTouchAndHoldOccurring:Bool = false
@@ -527,7 +530,155 @@ public class XvUserInput:UIGestureRecognizer {
         }
     }
     
-    //MARK: HELPERS
+    //MARK: - ROTATION
+    
+
+    @objc public func circleDetected(recognizer:XvCircleGestureRecognizer){
+        
+        //don't execute code if there are more than 2 touches
+        //because that means it's a tempo controller change
+        if (_currNumOfTouchesOnScreen > 1){
+            return
+        }
+        
+        if (recognizer.state == .changed){
+            
+            //MARK:ROTATION TEST
+            
+            // if...
+            // touch count is 1
+            // touch began in circle zone C
+            // touch is currently in circle zone C
+            // and rotation amount is significant
+            // and gesture angle is not zero (meaning it's beyong the init value)
+            
+            if (_currNumOfTouchesOnScreen == 1 &&
+                recognizer.didTouchBeginInOuterCircleCZone() &&
+                recognizer.isTouchInOuterCircleCZone() &&
+                recognizer.isRotationSignificant() &&
+                recognizer.gestureAngle != 0){
+                
+                //MARK:ROTATION START
+                //is this the beginning of a circle? (is _isRotationOccurring still false?)
+                if (!_isRotationOccurring){
+                    
+                    
+                    //TODO: post notif
+                    //then run the circle begin code in visual output and sequencer
+                    //VisualOutput.sharedInstance.rotationBegan()
+                    //XvSeqSystem.sharedInstance.scrubBegan()
+                    
+                    //drag is now occurring
+                    _isRotationOccurring = true
+                    
+                    if (debug) { print("INPUT: Rotation is occurring") }
+                    
+                }
+                
+                //MARK:ROTATE JOG WHEEL
+                //move graphic
+                //TODO: post notf
+                //VisualOutput.sharedInstance.rotationMove(toDegree: Double(recognizer.gestureAngle))
+                
+                //MARK:ROTATE SEQUENCER POSITION
+                //if sync is not external...
+                
+                //TODO: post notif
+                /*
+                if (cdm.getString(forKey: XvMidiConstants.kMidiSync) != XvMidiConstants.MIDI_CLOCK_RECEIVE &&
+                    !cdm.getBool(forKey: XvAbletonLinkConstants.kXvAbletonLinkEnabled)){
+                    
+                    //get step from graphic's new position
+                    let newPosition:Int = VisualOutput.sharedInstance.getStepFromCurrentDegreeOfOuterCircle()
+                    
+                    //update sequencer
+                    XvSeqSystem.sharedInstance.move(toNewPosition: newPosition)
+                    XvMidi.sharedInstance.sequencerMove(toNewPosition: newPosition)
+                    
+                }
+                 */
+                
+            }
+            
+            //MARK:ROTATION LEAVING BOUNDS
+            // if drag is occuring
+            // and touch is no longer in circle zone
+            
+            if (_isRotationOccurring && !recognizer.isTouchInOuterCircleCZone()){
+                
+                //TODO: post notification that rotation has ended
+                // ...release the interface and sequencer to resume normal play
+                //VisualOutput.sharedInstance.rotationEnded()
+                //XvSeqSystem.sharedInstance.scrubEnded()
+                
+            }
+            
+        } else if (recognizer.state == .ended){
+            
+            //MARK:ROTATION END
+            
+            //TODO: post notification that rotation has ended
+            //always end scrub when state is ended (prevents sequencer from getting stuck in pause state
+            //XvSeqSystem.sharedInstance.scrubEnded()
+            
+            // only execute circle ended code if circle moved code had been running
+            // (used to prevent this from firing on taps / swipes)
+            
+            if (_isRotationOccurring){
+                
+                //rotation is over
+                _isRotationOccurring = false
+                //VisualOutput.sharedInstance.rotationEnded()
+                
+                
+                //MARK:ROTATION RESET
+                
+                //if gesture is counter clockwise circle...
+                if (recognizer.rotationDirection == .rotationCounterClockwise){
+                    
+                    //...do a sequencer reset
+                    
+                    //TODO: post notification for seq reset
+                    //clear out all the note data
+                    //XvSeqSystem.sharedInstance.removeAllNotes()
+                    //XvSeqSystem.sharedInstance.resetUserData()
+                    //XvMidi.sharedInstance.allNotesOff()
+                    //VisualOutput.sharedInstance.midiIndicatorOff()
+                    //VisualOutput.sharedInstance.resetAllInstrumentMonitors()
+                    //VisualOutput.sharedInstance.animChannelUsage(percentageOfBusyChannels: 0)
+                    
+                    //if sync is not external...
+                    /*if (dm.getString(forKey: XvMidiConstants.kMidiSync) != XvMidiConstants.MIDI_CLOCK_RECEIVE &&
+                        !dm.getBool(forKey: XvAbletonLinkConstants.kXvAbletonLinkEnabled)){
+                        
+                        //restart sequencers to position 0, 0
+                        XvSeqSystem.sharedInstance.restart()
+                        XvMidi.sharedInstance.sequencerRestart()
+                        
+                    }*/
+                    
+                    //output text message
+                    //VisualOutput.sharedInstance.pulseText(header: "Reset", sub: "Sequencer restart")
+                    
+                    /*if (debug){
+                        print("INPUT: Remove all notes from song")
+                    }*/
+                    
+                }
+                
+            }
+            
+        } else {
+            _isRotationOccurring = false
+            
+            //TODO: post notif
+            //XvSeqSystem.sharedInstance.scrubEnded()
+        }
+        
+    }
+
+    
+    //MARK: - HELPERS
     fileprivate func _isInCenter(touchPoint:CGPoint) -> Bool {
         
         var _centerBool:Bool = false
