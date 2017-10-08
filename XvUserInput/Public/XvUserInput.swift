@@ -134,31 +134,25 @@ public class XvUserInput:UIGestureRecognizer {
         _isCenterTouchAndHoldOccurring = false
         _touchBeganPoint = nil
         
-        print("reset")
-        
         //always add to user input objects, and if it's a swipe or drag, remove them later
         if (self.view != nil){
             
-            print("view is good")
             //capture first touch vars for swipe and drag
             let touch:UITouch = touches.first!
             _touchBeganPoint = touch.location(in: self.view)
             _currNumOfTouchesOnScreen = event.allTouches!.count
             
-            print("create touch object?")
             //MARK: Objects
             if let touchObjects:[XvUserInputTouchObject] = UserInputTouchObjects.sharedInstance.add(
                 touches: touches,
                 inView: self.view!) {
                 
-                print("all touches loop")
                 //loop through the newly created touch objects and post a notification for each
                 for touchObject in touchObjects {
                     
                     //MARK: Touch data
                     let touchBeganPoint = touchObject.touch.location(in: self.view)
                     
-                    print("post notification")
                     Utils.postNotification(
                         name: XvUserInputConstants.kUserInputTouchBegan,
                         userInfo: [
@@ -174,7 +168,6 @@ public class XvUserInput:UIGestureRecognizer {
                 //create a short delay before executing touch began code
                 //this allows enough time for the system to determine the type of touch
                 
-                print("touch assessment timer")
                 _touchAssessmentDelayTimer.invalidate()
                 _touchAssessmentDelayTimer = Timer.scheduledTimer(
                     timeInterval: XvUserInputConstants.TOUCH_ASSESSMENT_DELAY,
@@ -570,10 +563,10 @@ public class XvUserInput:UIGestureRecognizer {
                 if (!_isRotationOccurring){
                     
                     
-                    //TODO: post notif
-                    //then run the circle begin code in visual output and sequencer
-                    //VisualOutput.sharedInstance.rotationBegan()
-                    //XvSeqSystem.sharedInstance.scrubBegan()
+                    Utils.postNotification(
+                        name: XvUserInputConstants.kUserInputRotationBegan,
+                        userInfo: nil
+                    )
                     
                     //drag is now occurring
                     _isRotationOccurring = true
@@ -583,28 +576,12 @@ public class XvUserInput:UIGestureRecognizer {
                 }
                 
                 //MARK:ROTATE JOG WHEEL
-                //move graphic
-                //TODO: post notf
-                //VisualOutput.sharedInstance.rotationMove(toDegree: Double(recognizer.gestureAngle))
                 
-                //MARK:ROTATE SEQUENCER POSITION
-                //if sync is not external...
-                
-                //TODO: post notif
-                /*
-                if (cdm.getString(forKey: XvMidiConstants.kMidiSync) != XvMidiConstants.MIDI_CLOCK_RECEIVE &&
-                    !cdm.getBool(forKey: XvAbletonLinkConstants.kXvAbletonLinkEnabled)){
-                    
-                    //get step from graphic's new position
-                    let newPosition:Int = VisualOutput.sharedInstance.getStepFromCurrentDegreeOfOuterCircle()
-                    
-                    //update sequencer
-                    XvSeqSystem.sharedInstance.move(toNewPosition: newPosition)
-                    XvMidi.sharedInstance.sequencerMove(toNewPosition: newPosition)
-                    
-                }
-                 */
-                
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputRotationMoved,
+                    userInfo: ["gestureAngle" : recognizer.gestureAngle]
+                )
+    
             }
             
             //MARK:ROTATION LEAVING BOUNDS
@@ -613,10 +590,10 @@ public class XvUserInput:UIGestureRecognizer {
             
             if (_isRotationOccurring && !recognizer.isTouchInOuterCircleCZone()){
                 
-                //TODO: post notification that rotation has ended
-                // ...release the interface and sequencer to resume normal play
-                //VisualOutput.sharedInstance.rotationEnded()
-                //XvSeqSystem.sharedInstance.scrubEnded()
+                Utils.postNotification(
+                    name: XvUserInputConstants.kUserInputRotationEnded,
+                    userInfo: nil
+                )
                 
             }
             

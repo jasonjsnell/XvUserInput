@@ -109,7 +109,6 @@ public class XvUserInputTouchObject:NSObject {
     
     public func startTouchAndHoldTimer(withInterval:Double){
         
-        
         _touchAndHoldTimer.invalidate()
         _touchAndHoldTimer = Timer.scheduledTimer(
             timeInterval: withInterval,
@@ -121,7 +120,7 @@ public class XvUserInputTouchObject:NSObject {
     }
     
     @objc internal func _touchAndHoldTimerFire(){
-        
+       
         //if a hold is occuring
         if (_isTouchAndHoldOccurring){
 
