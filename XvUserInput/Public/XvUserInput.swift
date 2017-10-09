@@ -260,8 +260,6 @@ public class XvUserInput:UIGestureRecognizer {
     //called by touches moved before timer is complete
     fileprivate func _assessSwipe(withTouchPoint:CGPoint){
         
-        print("assess swipe")
-        
         //need touch point and only 1 touch point
         if (_touchBeganPoint != nil && _currNumOfTouchesOnScreen == 1){
             
