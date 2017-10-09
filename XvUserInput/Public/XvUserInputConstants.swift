@@ -39,11 +39,11 @@ public class XvUserInputConstants {
     public static let kUserInputRotationBegan:String = "kUserInputRotationBegan"
     public static let kUserInputRotationMoved:String = "kUserInputRotationMoved"
     public static let kUserInputRotationEnded:String = "kUserInputRotationEnded"
+    public static let kUserInputReverseRotationCompleted:String = "kUserInputReverseRotationCompleted"
     
     public static let kUserInputSwipeBegan:String = "kUserInputSwipeBegan"
     public static let kUserInputSwipeEnded:String = "kUserInputSwipeEnded"
     
-    //TODO: disable touch and hold rapid fire on RF
     public static let kUserInputTouchAndHoldOnInstrument:String = "kUserInputTouchAndHoldOnInstrument"
     public static let kUserInputTouchAndHoldOnCenter:String = "kUserInputTouchAndHoldOnCenter"
     public static let kUserInputTouchAndHoldOnNonInstrument:String = "kUserInputTouchAndHoldOnNonInstrument"

@@ -31,7 +31,7 @@ public class XvUserInput:UIGestureRecognizer {
     
     //MARK:- VARIABLES
     
-    //TODO: For multi view, I need to be able to pass in views to have certain listeners
+    //TODO: Next version: For multi view, I need to be able to pass in views to have certain listeners
     
     //touch data
     fileprivate var _touchBeganPoint:CGPoint?
@@ -132,6 +132,7 @@ public class XvUserInput:UIGestureRecognizer {
         _isSwipeOccurring = false
         _isCenterTouchOccurring = false
         _isCenterTouchAndHoldOccurring = false
+        _isRotationOccurring = false
         _touchBeganPoint = nil
         
         //always add to user input objects, and if it's a swipe or drag, remove them later
@@ -218,6 +219,7 @@ public class XvUserInput:UIGestureRecognizer {
         }
         
         //MARK: Swipe
+        //TODO: Swipe is not registering
         if (_isSwipeOccurring){
             
             if (debug) { print("INPUT: Swipe is occurring") }
@@ -240,6 +242,14 @@ public class XvUserInput:UIGestureRecognizer {
             return
             
         }
+        
+        //MARK: Rotation
+        if (_isRotationOccurring){
+            
+            UserInputTouchObjects.sharedInstance.removeAll()
+            return
+        }
+        
         
         //MARK: Single taps
         UserInputTouchObjects.sharedInstance.allObjectsOn()
@@ -345,6 +355,12 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
+        //MARK: Rotation
+        //don't execute touch moved code if swipe is occurring
+        if (_isRotationOccurring){
+            return
+        }
+        
         
         //if touch assessment is still occurring...
         if (_touchAssessmentDelayTimer.isValid){
@@ -406,6 +422,11 @@ public class XvUserInput:UIGestureRecognizer {
         
         let firstTouch:UITouch = (event.allTouches!.first)!
         let firstTouchEndedPoint:CGPoint = firstTouch.location(in: self.view)
+        
+        //MARK: Rotation
+        if (_isRotationOccurring){
+            //return
+        }
         
         //MARK: Drag
         //always hide tempo controller as soon as any touch stops
@@ -601,64 +622,38 @@ public class XvUserInput:UIGestureRecognizer {
             
             //MARK:ROTATION END
             
-            //TODO: post notification that rotation has ended
-            //always end scrub when state is ended (prevents sequencer from getting stuck in pause state
-            //XvSeqSystem.sharedInstance.scrubEnded()
-            
-            // only execute circle ended code if circle moved code had been running
-            // (used to prevent this from firing on taps / swipes)
-            
             if (_isRotationOccurring){
                 
                 //rotation is over
                 _isRotationOccurring = false
-                //VisualOutput.sharedInstance.rotationEnded()
-                
                 
                 //MARK:ROTATION RESET
                 
                 //if gesture is counter clockwise circle...
                 if (recognizer.rotationDirection == .rotationCounterClockwise){
                     
-                    //...do a sequencer reset
-                    
-                    //TODO: post notification for seq reset
-                    //clear out all the note data
-                    //XvSeqSystem.sharedInstance.removeAllNotes()
-                    //XvSeqSystem.sharedInstance.resetUserData()
-                    //XvMidi.sharedInstance.allNotesOff()
-                    //VisualOutput.sharedInstance.midiIndicatorOff()
-                    //VisualOutput.sharedInstance.resetAllInstrumentMonitors()
-                    //VisualOutput.sharedInstance.animChannelUsage(percentageOfBusyChannels: 0)
-                    
-                    //if sync is not external...
-                    /*if (dm.getString(forKey: XvMidiConstants.kMidiSync) != XvMidiConstants.MIDI_CLOCK_RECEIVE &&
-                        !dm.getBool(forKey: XvAbletonLinkConstants.kXvAbletonLinkEnabled)){
-                        
-                        //restart sequencers to position 0, 0
-                        XvSeqSystem.sharedInstance.restart()
-                        XvMidi.sharedInstance.sequencerRestart()
-                        
-                    }*/
-                    
-                    //output text message
-                    //VisualOutput.sharedInstance.pulseText(header: "Reset", sub: "Sequencer restart")
-                    
-                    /*if (debug){
-                        print("INPUT: Remove all notes from song")
-                    }*/
-                    
+                    Utils.postNotification(
+                        name: XvUserInputConstants.kUserInputReverseRotationCompleted,
+                        userInfo: nil
+                    )
                 }
-                
             }
             
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputRotationEnded,
+                userInfo: nil
+            )
+            
         } else {
+            
             _isRotationOccurring = false
             
-            //TODO: post notif
-            //XvSeqSystem.sharedInstance.scrubEnded()
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputRotationEnded,
+                userInfo: nil
+            )
+            
         }
-        
     }
 
     

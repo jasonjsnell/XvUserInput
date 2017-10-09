@@ -115,7 +115,7 @@ public class XvUserInputTouchObject:NSObject {
             target: self,
             selector: #selector(self._touchAndHoldTimerFire),
             userInfo: nil,
-            repeats: true)
+            repeats: true) 
         
     }
     
@@ -127,6 +127,8 @@ public class XvUserInputTouchObject:NSObject {
             //an instrument area is being held
             if (inputY != -1){
                 
+                //TODO: Next version: reactivate when input has its own screen
+                /*
                 Utils.postNotification(
                     name: XvUserInputConstants.kUserInputTouchAndHoldOnInstrument,
                     userInfo: ["touchObject": self]
@@ -138,7 +140,8 @@ public class XvUserInputTouchObject:NSObject {
                 
                 //follow up with midi note off so it's not one long midi note on
                 _sendMidiNoteOff(afterDelay: _touchAndHoldTimer.timeInterval * 0.9)
-                
+                 */
+ 
             } else {
                 
                 
