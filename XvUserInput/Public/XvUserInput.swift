@@ -219,7 +219,6 @@ public class XvUserInput:UIGestureRecognizer {
         }
         
         //MARK: Swipe
-        //TODO: Swipe is not registering
         if (_isSwipeOccurring){
             
             if (debug) { print("INPUT: Swipe is occurring") }
@@ -261,6 +260,8 @@ public class XvUserInput:UIGestureRecognizer {
     //called by touches moved before timer is complete
     fileprivate func _assessSwipe(withTouchPoint:CGPoint){
         
+        print("assess swipe")
+        
         //need touch point and only 1 touch point
         if (_touchBeganPoint != nil && _currNumOfTouchesOnScreen == 1){
             
@@ -291,6 +292,14 @@ public class XvUserInput:UIGestureRecognizer {
             } else if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_RIGHT) {
                 
                 //swipe right RF
+                
+                //if there is a big enough positive differents between begin touch and move touch, right swipe is occuring
+                let swipeDistance:CGFloat = withTouchPoint.x - _touchBeganPoint!.x
+                
+                if (swipeDistance > _swipeStartDistanceThreshold){
+                    if (debug) { print("INPUT: Swipe is occurring") }
+                    _isSwipeOccurring = true
+                }
                 
             }
             
@@ -499,12 +508,26 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        //confirm swipe was wide enough
-        //get distance from center
-        let swipeDistance:CGFloat = _getSwipeDistanceFromCenter(
-            startPoint: _touchBeganPoint!,
-            endPoint: atTouchPoint
-        )
+        //confirm swipe was far enough
+        
+        var swipeDistance:CGFloat = 0
+        
+        
+        if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_AWAY_FROM_CENTER){
+            
+            //swipe away from the center (RPC)
+            
+            //get distance from center
+            swipeDistance = _getSwipeDistanceFromCenter(
+                startPoint: _touchBeganPoint!,
+                endPoint: atTouchPoint
+            )
+            
+        } else if (_swipeDirection == XvUserInputConstants.SWIPE_DIRECTION_RIGHT) {
+            
+            //swiping right (RF)
+            swipeDistance = atTouchPoint.x - _touchBeganPoint!.x
+        }
         
         if (swipeDistance > _swipeEndDistanceThreshold){
             
