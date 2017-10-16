@@ -128,11 +128,15 @@ public class XvUserInput:UIGestureRecognizer {
             print("INPUT: touchesBegan")
         }
         
+        if (_isRotationOccurring){
+            return
+        }
+        
         //reset
         _isSwipeOccurring = false
         _isCenterTouchOccurring = false
         _isCenterTouchAndHoldOccurring = false
-        _isRotationOccurring = false
+        //_isRotationOccurring = false
         _touchBeganPoint = nil
         
         //always add to user input objects, and if it's a swipe or drag, remove them later
@@ -363,7 +367,7 @@ public class XvUserInput:UIGestureRecognizer {
         }
         
         //MARK: Rotation
-        //don't execute touch moved code if swipe is occurring
+        //don't execute touch moved code if rotation is occurring
         if (_isRotationOccurring){
             return
         }
@@ -432,7 +436,8 @@ public class XvUserInput:UIGestureRecognizer {
         
         //MARK: Rotation
         if (_isRotationOccurring){
-            //return
+            //_isRotationOccurring = false
+            return
         }
         
         //MARK: Drag
@@ -645,10 +650,9 @@ public class XvUserInput:UIGestureRecognizer {
             
             if (_isRotationOccurring){
                 
-                //rotation is over
-                _isRotationOccurring = false
-                
                 //MARK:ROTATION RESET
+                
+                _isRotationOccurring = false
                 
                 //if gesture is counter clockwise circle...
                 if (recognizer.rotationDirection == .rotationCounterClockwise){
@@ -667,12 +671,12 @@ public class XvUserInput:UIGestureRecognizer {
             
         } else {
             
-            _isRotationOccurring = false
+            /*_isRotationOccurring = false
             
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputRotationEnded,
                 userInfo: nil
-            )
+            )*/
             
         }
     }
