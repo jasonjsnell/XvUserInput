@@ -60,8 +60,8 @@ public class XvUserInput:UIGestureRecognizer {
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(_assessTouchAndHoldOnNonInstrument),
-            name: Notification.Name(rawValue: XvUserInputConstants.kUserInputTouchAndHoldOnNonInstrument),
+            selector: #selector(_assessTouchAndHoldOnNonTrack),
+            name: Notification.Name(rawValue: XvUserInputConstants.kUserInputTouchAndHoldOnNonTrack),
             object: nil
         )
     }
@@ -92,7 +92,7 @@ public class XvUserInput:UIGestureRecognizer {
      Start a short timer to give the interface a split second to determine the touch
      - A. Is it a one finger swipe?
      - B. Is it a multi-finger drag?
-     - C. Is it an instrument tap?
+     - C. Is it an track tap?
      - D. Is it a center tap?
      
      2. touchAssessmentComplete
@@ -111,7 +111,7 @@ public class XvUserInput:UIGestureRecognizer {
      
      
      4. touchesEnded
-     - A. Clear that rows instrument
+     - A. Clear that rows track
      - B. Release tempo controller
      - C. Send note off command into touch objects
      - D. Play / pause system
@@ -318,9 +318,9 @@ public class XvUserInput:UIGestureRecognizer {
     
     //MARK: - ASSESS TOUCH & HOLD
     
-    @objc public func _assessTouchAndHoldOnNonInstrument(notification:Notification) -> Void {
+    @objc public func _assessTouchAndHoldOnNonTrack(notification:Notification) -> Void {
         
-        //assess touch and hold notification from non instrument
+        //assess touch and hold notification from non track
         if (_isCenterTouchOccurring) {
             
             _isCenterTouchAndHoldOccurring = true

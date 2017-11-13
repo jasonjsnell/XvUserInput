@@ -13,7 +13,7 @@ public class XvUserInputTouchObject:NSObject {
     
     
     fileprivate var _inputX:Int = -1 //position for pitch
-    fileprivate var _inputY:Int = -1 //position for instrument
+    fileprivate var _inputY:Int = -1 //position for track
     
     
     //touch began (init)
@@ -124,13 +124,13 @@ public class XvUserInputTouchObject:NSObject {
         //if a hold is occuring
         if (_isTouchAndHoldOccurring){
 
-            //an instrument area is being held
+            //an track area is being held
             if (inputY != -1){
                 
                 //TODO: Next version: reactivate when input has its own screen
                 /*
                 Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputTouchAndHoldOnInstrument,
+                    name: XvUserInputConstants.kUserInputTouchAndHoldOnTrack,
                     userInfo: ["touchObject": self]
                 )
                 
@@ -146,7 +146,7 @@ public class XvUserInputTouchObject:NSObject {
                 
                 
                 Utils.postNotification(
-                    name: XvUserInputConstants.kUserInputTouchAndHoldOnNonInstrument,
+                    name: XvUserInputConstants.kUserInputTouchAndHoldOnNonTrack,
                     userInfo: ["touchObject": self]
                 )
                 
@@ -194,7 +194,7 @@ public class XvUserInputTouchObject:NSObject {
             
             _on = true
             
-            //note on is only for instrument touches
+            //note on is only for track touches
             if (inputY != -1 && inputX != -1){
                 
                 if (debug){ print("INPUT OBJ:", self, "is turning on") }
@@ -229,7 +229,7 @@ public class XvUserInputTouchObject:NSObject {
         _touchAndHoldCancel()
         
         
-        //was an instrument area hit, or the center?
+        //was an track area hit, or the center?
         if (_inputX != -1 && _inputY != -1){
             
             //touch length
@@ -237,7 +237,7 @@ public class XvUserInputTouchObject:NSObject {
             
             //post notication (updates xvnote length, releases visual anim)
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForInstrument,
+                name: XvUserInputConstants.kUserInputTouchObjectOffForTrack,
                 userInfo: ["touchObject": self]
             )
             
@@ -247,7 +247,7 @@ public class XvUserInputTouchObject:NSObject {
             
         }  else {
             
-            if (debug) { print("INPUT OBJ: Non-instrument zone, object life complete") }
+            if (debug) { print("INPUT OBJ: Non-track zone, object life complete") }
             _lifeComplete()
  
         }
@@ -286,7 +286,7 @@ public class XvUserInputTouchObject:NSObject {
     
     //MARK: - SWITCH
     
-    //used when user drags tap from one y / instrument zone to another
+    //used when user drags tap from one y / track zone to another
     public func switchTo(newTouchBeganPoint:CGPoint, newInputX:Int, newInputY:Int) {
         
         if (debug){ 
@@ -305,7 +305,7 @@ public class XvUserInputTouchObject:NSObject {
         _on = false
         
     
-        //was an instrument area hit?
+        //was an track area hit?
         if (_inputX != -1 && _inputY != -1){
             
             //update the touch length
@@ -313,7 +313,7 @@ public class XvUserInputTouchObject:NSObject {
             
             //post, which updates the XvNote length and releases visual anims
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForInstrument,
+                name: XvUserInputConstants.kUserInputTouchObjectOffForTrack,
                 userInfo: ["touchObject": self]
             )
             
@@ -324,7 +324,7 @@ public class XvUserInputTouchObject:NSObject {
             
             //non intrument end (in RPC, a play / pause func)
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForNonInstrument,
+                name: XvUserInputConstants.kUserInputTouchObjectOffForNonTrack,
                 userInfo: ["touchObject": self]
             )
         }*/

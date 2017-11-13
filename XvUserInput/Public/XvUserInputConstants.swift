@@ -44,16 +44,16 @@ public class XvUserInputConstants {
     public static let kUserInputSwipeBegan:String = "kUserInputSwipeBegan"
     public static let kUserInputSwipeEnded:String = "kUserInputSwipeEnded"
     
-    public static let kUserInputTouchAndHoldOnInstrument:String = "kUserInputTouchAndHoldOnInstrument"
+    public static let kUserInputTouchAndHoldOnTrack:String = "kUserInputTouchAndHoldOnTrack"
     public static let kUserInputTouchAndHoldOnCenter:String = "kUserInputTouchAndHoldOnCenter"
-    public static let kUserInputTouchAndHoldOnNonInstrument:String = "kUserInputTouchAndHoldOnNonInstrument"
+    public static let kUserInputTouchAndHoldOnNonTrack:String = "kUserInputTouchAndHoldOnNonTrack"
     
     public static let kUserInputCenterButtonTouch:String = "kUserInputCenterButtonTouch"
     
     public static let kUserInputShake:String = "kUserInputShake"
     
     public static let kUserInputTouchObjectOn:String = "kUserInputTouchObjectOn"
-    public static let kUserInputTouchObjectOffForInstrument:String = "kUserInputTouchObjectOffForInstrument"
+    public static let kUserInputTouchObjectOffForTrack:String = "kUserInputTouchObjectOffForTrack"
     
     public static let kUserInputTouchObjectMidiNoteOff:String = "kUserInputTouchObjectMidiNoteOff"
     public static let kUserInputTouchObjectLifeComplete:String = "kUserInputTouchObjectLifeComplete"
