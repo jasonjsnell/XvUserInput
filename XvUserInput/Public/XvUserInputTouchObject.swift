@@ -127,7 +127,7 @@ public class XvUserInputTouchObject:NSObject {
             //an track area is being held
             if (inputY != -1){
                 
-                //TODO: Next version: reactivate when input has its own screen
+                //TODO: Future: reactivate when input has its own screen
                 /*
                 Utils.postNotification(
                     name: XvUserInputConstants.kUserInputTouchAndHoldOnTrack,

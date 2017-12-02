@@ -31,7 +31,7 @@ public class XvUserInput:UIGestureRecognizer {
     
     //MARK:- VARIABLES
     
-    //TODO: Next version: For multi view, I need to be able to pass in views to have certain listeners
+    //TODO: Future For multi view, I need to be able to pass in views to have certain listeners
     
     //touch data
     fileprivate var _touchBeganPoint:CGPoint?
