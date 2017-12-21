@@ -12,8 +12,7 @@ import CoreGraphics
 public class XvUserInputTouchObject:NSObject {
     
     
-    fileprivate var _inputX:Int = -1 //position for pitch
-    fileprivate var _inputY:Int = -1 //position for track
+    
     
     
     //touch began (init)
@@ -31,6 +30,7 @@ public class XvUserInputTouchObject:NSObject {
     fileprivate var _musicalNote:Int = 60
     
     //to find xvNote when updating touch length
+    //TODO: Remove these? are they needed anymore?
     fileprivate var _measure:Int = 0
     fileprivate var _step:Int = 0
     
@@ -44,19 +44,22 @@ public class XvUserInputTouchObject:NSObject {
     
     //MARK: GETTERS / SETTERS
     
+    fileprivate var _inputX:Int = -1 //position for pitch
+    
     public var inputX:Int {
         get { return _inputX }
         set {
             self._inputX = newValue
-            //if (debug) { print("INPUT OBJ: Input X set to", newValue) }
+            if (debug) { print("INPUT OBJ: Input X set to", newValue) }
         }
     }
     
+    fileprivate var _inputY:Int = -1 //position for track
     public var inputY:Int {
         get { return _inputY }
         set {
             self._inputY = newValue
-            //if (debug) { print("INPUT OBJ: Input Y set to", newValue) }
+            if (debug) { print("INPUT OBJ: Input Y set to", newValue) }
         }
     }
     
@@ -369,7 +372,7 @@ public class XvUserInputTouchObject:NSObject {
         _inputX = -1
         _inputY = -1
         
-        //if (debug){ print("INPUT OBJ: Touch object", self, "removed") }
+        if (debug){ print("INPUT OBJ: Touch object", self, "removed") }
         
         
     }
