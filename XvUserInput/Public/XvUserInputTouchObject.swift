@@ -239,6 +239,7 @@ public class XvUserInputTouchObject:NSObject {
             let midiDelay:Double = _updateTouchLength()
             
             //post notication (updates xvnote length, releases visual anim)
+            //TODO: needed?
             Utils.postNotification(
                 name: XvUserInputConstants.kUserInputTouchObjectOffForTrack,
                 userInfo: ["touchObject": self]
@@ -256,7 +257,7 @@ public class XvUserInputTouchObject:NSObject {
         }
     }
     
-    
+    //TODO: nix?
     fileprivate func _sendMidiNoteOff(afterDelay:Double) {
         
         //set up timer for note off command
