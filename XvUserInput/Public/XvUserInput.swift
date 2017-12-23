@@ -253,7 +253,6 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        
         //MARK: Single taps
         UserInputTouchObjects.sharedInstance.allObjectsOn()
         

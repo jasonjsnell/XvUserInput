@@ -56,6 +56,8 @@ class UserInputTouchObjects {
             
         }
         
+        if (debug) { print("INPUT: Add, total", touchObjects) }
+        
         if (newTouchObjects.count > 0){
             
             return newTouchObjects
@@ -118,7 +120,7 @@ class UserInputTouchObjects {
             for touchObject in touchObjects {
                 
                 if (touch == touchObject.touch){
-                    if (debug) { print("INPUT: Turn", touchObject, "off") }
+                    if (debug) { print("INPUT: Turn off", touchObject) }
                     touchObject.off()
                     
                 }
@@ -143,6 +145,7 @@ class UserInputTouchObjects {
     internal func remove(touchObject:XvUserInputTouchObject){
         
         if (debug) { print("INPUT: remove", touchObject) }
+        if (debug) { print("INPUT: remove, total", touchObjects) }
         
         //run local removal code
         touchObject.remove()

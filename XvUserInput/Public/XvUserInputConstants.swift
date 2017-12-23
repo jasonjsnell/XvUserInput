@@ -14,7 +14,6 @@ public class XvUserInputConstants {
     static let TOUCH_ASSESSMENT_DELAY:Double = 0.05 // can go down to 0.03 if tempo controller gets moved to a modulation panel
     static let TOUCHES_TO_TRIGGER_DRAG:Int = 3
     static let MIN_TAP_LENGTH_FOR_MIDI_NOTE:Double = 0.05
-    static let DEFAULT_NOTE_LENGTH:Double = 0.1
     static let TOUCH_AND_HOLD_MIN_DURATION:Double = 1.2 //0.7
     static let CENTER_BUTTON_RADIUS:CGFloat = 50
     
@@ -53,7 +52,7 @@ public class XvUserInputConstants {
     public static let kUserInputShake:String = "kUserInputShake"
     
     public static let kUserInputTouchObjectOn:String = "kUserInputTouchObjectOn"
-    public static let kUserInputTouchObjectOffForTrack:String = "kUserInputTouchObjectOffForTrack"
+    public static let kUserInputTouchObjectOff:String = "kUserInputTouchObjectOff"
     
     public static let kUserInputTouchObjectMidiNoteOff:String = "kUserInputTouchObjectMidiNoteOff"
     public static let kUserInputTouchObjectLifeComplete:String = "kUserInputTouchObjectLifeComplete"

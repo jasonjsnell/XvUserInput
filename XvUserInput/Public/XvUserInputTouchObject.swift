@@ -11,10 +11,6 @@ import CoreGraphics
 
 public class XvUserInputTouchObject:NSObject {
     
-    
-    
-    
-    
     //touch began (init)
     fileprivate var _touch:UITouch?
     fileprivate var _touchBeganPoint:CGPoint = CGPoint()
@@ -24,19 +20,6 @@ public class XvUserInputTouchObject:NSObject {
     //touch & hold
     fileprivate var _touchAndHoldTimer:Timer = Timer()
     fileprivate var _isTouchAndHoldOccurring:Bool = false
-    
-    
-    //note on
-    fileprivate var _musicalNote:Int = 60
-    
-    //to find xvNote when updating touch length
-    //TODO: Remove these? are they needed anymore?
-    fileprivate var _measure:Int = 0
-    fileprivate var _step:Int = 0
-    
-    //note off
-    fileprivate var _touchLength:TimeInterval = TimeInterval()
-    fileprivate var _sendMidiOffTimer:Timer = Timer()
     
     fileprivate var _isSwitchOccurring:Bool = false
     
@@ -50,7 +33,7 @@ public class XvUserInputTouchObject:NSObject {
         get { return _inputX }
         set {
             self._inputX = newValue
-            if (debug) { print("INPUT OBJ: Input X set to", newValue) }
+            //if (debug) { print("INPUT OBJ: Input X set to", newValue) }
         }
     }
     
@@ -59,31 +42,12 @@ public class XvUserInputTouchObject:NSObject {
         get { return _inputY }
         set {
             self._inputY = newValue
-            if (debug) { print("INPUT OBJ: Input Y set to", newValue) }
+            //if (debug) { print("INPUT OBJ: Input Y set to", newValue) }
         }
-    }
-    
-    public var measure:Int {
-        get { return _measure }
-        set { self._measure = newValue }
-    }
-    
-    public var musicalNote:Int {
-        get { return _musicalNote }
-        set { self._musicalNote = newValue }
-    }
-    
-    public var step:Int {
-        get { return _step }
-        set { self._step = newValue }
     }
     
     public var touchBeganPoint:CGPoint {
         return _touchBeganPoint
-    }
-    
-    public var touchLength:Double {
-        return _touchLength
     }
     
     internal var touch:UITouch {
@@ -93,7 +57,6 @@ public class XvUserInputTouchObject:NSObject {
     
     
     //MARK: - TOUCH BEGAN / init
-    
     
     init(withTouch:UITouch, inView:UIView){
         
@@ -226,8 +189,34 @@ public class XvUserInputTouchObject:NSObject {
         
         if (debug){ print("INPUT OBJ: Off") }
         
-        _on = false
+        let touchLength:Double = Date().timeIntervalSince(_touchBeganTime)
+        
+        if (touchLength > XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE) {
+            
+            _off()
+            
+        } else {
+            
+            let timeLeftUntilMinimum:Double = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE - touchLength
+            
+            let when:DispatchTime = DispatchTime.now() + timeLeftUntilMinimum
+             
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: when) {
+                
+                self._off()
+            }
+            
+        }
+        
+        
+        
+    }
     
+    fileprivate func _off(){
+        
+        if (debug){ print("INPUT OBJ: Off exe") }
+        _on = false
+        
         //always stop touch and hold on touches ended
         _touchAndHoldCancel()
         
@@ -235,56 +224,25 @@ public class XvUserInputTouchObject:NSObject {
         //was an track area hit, or the center?
         if (_inputX != -1 && _inputY != -1){
             
-            //touch length
-            let midiDelay:Double = _updateTouchLength()
-            
-            //post notication (updates xvnote length, releases visual anim)
-            //TODO: needed?
+            //post notication
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForTrack,
+                name: XvUserInputConstants.kUserInputTouchObjectOff,
                 userInfo: ["touchObject": self]
             )
             
-            //MIDI note off
-            _sendMidiNoteOff(afterDelay: midiDelay)
-            
+            //if this isn't called from touch and hold...
+            //if this isn't called frmo a switch
+            if (!_isTouchAndHoldOccurring && !_isSwitchOccurring){
+                
+                if (debug) { print("INPUT OBJ: Note off has been sent, object life complete") }
+                _lifeComplete()
+            }
             
         }  else {
             
             if (debug) { print("INPUT OBJ: Non-track zone, object life complete") }
             _lifeComplete()
- 
-        }
-    }
-    
-    //TODO: nix?
-    fileprivate func _sendMidiNoteOff(afterDelay:Double) {
-        
-        //set up timer for note off command
-        _sendMidiOffTimer.invalidate()
-        _sendMidiOffTimer = Timer.scheduledTimer(
-            timeInterval: afterDelay,
-            target: self,
-            selector: #selector(self._midiNoteOff),
-            userInfo: nil,
-            repeats: false)
-        
-    }
-    
-    
-    @objc internal func _midiNoteOff(){
-        
-        Utils.postNotification(
-            name: XvUserInputConstants.kUserInputTouchObjectMidiNoteOff,
-            userInfo: ["touchObject" : self])
-        
-        
-        //if this isn't called from touch and hold...
-        //if this isn't called frmo a switch
-        if (!_isTouchAndHoldOccurring && !_isSwitchOccurring){
             
-            if (debug) { print("INPUT OBJ: MIDI note off has been sent, object life complete") }
-            _lifeComplete()
         }
     }
     
@@ -312,17 +270,11 @@ public class XvUserInputTouchObject:NSObject {
         //was an track area hit?
         if (_inputX != -1 && _inputY != -1){
             
-            //update the touch length
-            let _:Double = _updateTouchLength()
-            
             //post, which updates the XvNote length and releases visual anims
             Utils.postNotification(
-                name: XvUserInputConstants.kUserInputTouchObjectOffForTrack,
+                name: XvUserInputConstants.kUserInputTouchObjectOff,
                 userInfo: ["touchObject": self]
             )
-            
-            //immediate midi off
-            _midiNoteOff()
         
         } /*else {
             
@@ -368,7 +320,6 @@ public class XvUserInputTouchObject:NSObject {
     internal func remove(){
         
         _touchAndHoldCancel()
-        _sendMidiOffTimer.invalidate()
         _touch = nil
         _inputX = -1
         _inputY = -1
@@ -376,25 +327,6 @@ public class XvUserInputTouchObject:NSObject {
         if (debug){ print("INPUT OBJ: Touch object", self, "removed") }
         
         
-    }
-    
-    //MARK: - HELPERS
-    
-    //MARK: Touch length
-    fileprivate func _updateTouchLength() -> Double{
-        
-        //calc how long it's been since the touch began
-        _touchLength = Date().timeIntervalSince(_touchBeganTime)
-        
-        //push length to at least minimum so each MIDI note can trigger
-        var touchLengthDeficit:Double = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
-        
-        if (_touchLength < XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE){
-            touchLengthDeficit = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE - _touchLength
-            _touchLength = XvUserInputConstants.MIN_TAP_LENGTH_FOR_MIDI_NOTE
-        }
-        
-        return touchLengthDeficit
     }
     
 }
