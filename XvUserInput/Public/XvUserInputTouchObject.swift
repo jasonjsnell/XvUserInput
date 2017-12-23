@@ -50,8 +50,8 @@ public class XvUserInputTouchObject:NSObject {
         return _touchBeganPoint
     }
     
-    internal var touch:UITouch {
-        return _touch!
+    internal var touch:UITouch? {
+        return _touch
     }
     
     

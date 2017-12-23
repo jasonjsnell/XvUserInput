@@ -136,7 +136,7 @@ public class XvUserInput:UIGestureRecognizer {
         _isSwipeOccurring = false
         _isCenterTouchOccurring = false
         _isCenterTouchAndHoldOccurring = false
-        //_isRotationOccurring = false
+        _isRotationOccurring = false
         _touchBeganPoint = nil
         
         //always add to user input objects, and if it's a swipe or drag, remove them later
@@ -156,15 +156,21 @@ public class XvUserInput:UIGestureRecognizer {
                 for touchObject in touchObjects {
                     
                     //MARK: Touch data
-                    let touchBeganPoint = touchObject.touch.location(in: self.view)
-                    
-                    Utils.postNotification(
-                        name: XvUserInputConstants.kUserInputTouchBegan,
-                        userInfo: [
-                            "touchBeganPoint" : touchBeganPoint,
-                            "touchObject" : touchObject
-                        ]
-                    )
+                    if let touchObjectTouch:UITouch = touchObject.touch {
+                        
+                        let touchBeganPoint = touchObjectTouch.location(in: self.view)
+                        
+                        Utils.postNotification(
+                            name: XvUserInputConstants.kUserInputTouchBegan,
+                            userInfo: [
+                                "touchBeganPoint" : touchBeganPoint,
+                                "touchObject" : touchObject
+                            ]
+                        )
+                        
+                    } else {
+                        print("INPUT: Error getting touchObject.touch during touchesBegan")
+                    }
                 }
                 
                 
@@ -425,6 +431,18 @@ public class XvUserInput:UIGestureRecognizer {
     //MARK: - TOUCHES ENDED
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         
+        //always turn off the touch objects that ended in this set of touches
+        UserInputTouchObjects.sharedInstance.turnOff(touches: touches)
+        
+        //if this is the last touch of a set, always send all touches ended (so sequencer can clear its touch objects array in creator
+        if (event.allTouches!.count == 1){
+            
+            Utils.postNotification(
+                name: XvUserInputConstants.kUserInputAllTouchesEnded,
+                userInfo: nil
+            )
+        }
+        
         if (debug) {
             print("")
             print("INPUT: Touch ended")
@@ -435,7 +453,7 @@ public class XvUserInput:UIGestureRecognizer {
         
         //MARK: Rotation
         if (_isRotationOccurring){
-            //_isRotationOccurring = false
+            //_isRotationOccurring = false //error: stops reset from happening
             return
         }
         
@@ -492,14 +510,6 @@ public class XvUserInput:UIGestureRecognizer {
             return
         }
         
-        
-        
-        //MARK: Single tap / touch
-        if (_currNumOfTouchesOnScreen < XvUserInputConstants.TOUCHES_TO_TRIGGER_DRAG) {
-            
-            UserInputTouchObjects.sharedInstance.turnOff(touches: touches)
-        }
-        
     }
     
     //MARK: Swipe: Ended
@@ -545,6 +555,7 @@ public class XvUserInput:UIGestureRecognizer {
             
             //reset
             _isSwipeOccurring = false
+            
         }
     }
     

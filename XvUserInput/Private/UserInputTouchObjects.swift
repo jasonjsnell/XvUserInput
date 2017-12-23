@@ -35,8 +35,14 @@ class UserInputTouchObjects {
             //loop through existing objects and see if there is a match
             for touchObject in touchObjects {
                 
-                if (touch == touchObject.touch){
-                    alreadyRecorded = true
+                if let touchObjectTouch:UITouch = touchObject.touch {
+                    
+                    if (touch == touchObjectTouch){
+                        alreadyRecorded = true
+                    }
+                    
+                } else {
+                    print("INPUT: Error getting touchObject.touch during add")
                 }
             }
             
@@ -86,8 +92,14 @@ class UserInputTouchObjects {
         
         for touchObject in touchObjects {
             
-            if (touchObject.touch) == fromTouch {
-                return touchObject
+            if let touchObjectTouch:UITouch = touchObject.touch {
+                
+                if (touchObjectTouch == fromTouch) {
+                    return touchObject
+                }
+                
+            } else {
+                print("INPUT: Error getting touchObject.touch during getTouchObject")
             }
         }
         
@@ -119,10 +131,15 @@ class UserInputTouchObjects {
             //loop through existing objects and see if there is a match
             for touchObject in touchObjects {
                 
-                if (touch == touchObject.touch){
-                    if (debug) { print("INPUT: Turn off", touchObject) }
-                    touchObject.off()
+                if let touchObjectTouch:UITouch = touchObject.touch {
                     
+                    if (touch == touchObjectTouch){
+                        if (debug) { print("INPUT: Turn off", touchObject) }
+                        touchObject.off()
+                        
+                    }
+                } else {
+                    print("INPUT: Error getting touchObject.touch during turnOff")
                 }
             }
         }

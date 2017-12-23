@@ -30,6 +30,7 @@ public class XvUserInputConstants {
     public static let kUserInputTouchAssessmentComplete:String = "kUserInputTouchAssessmentComplete"
     public static let kUserInputTouchMoved:String = "kUserInputTouchMoved"
     public static let kUserInputTouchEnded:String = "kUserInputTouchEnded"
+    public static let kUserInputAllTouchesEnded:String = "kUserInputAllTouchesEnded"
     
     public static let kUserInputDragBegan:String = "kUserInputDragBegan"
     public static let kUserInputDragMoved:String = "kUserInputDragMoved"
