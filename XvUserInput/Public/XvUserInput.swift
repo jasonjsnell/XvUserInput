@@ -431,6 +431,20 @@ public class XvUserInput:UIGestureRecognizer {
     //MARK: - TOUCHES ENDED
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         
+        //MARK: Fast gesture assessment
+        //check to see if it's a very fast gesture
+        if (_touchAssessmentDelayTimer.isValid){
+            
+            //..stop the delay
+            _touchAssessmentDelayTimer.invalidate()
+            
+            //and fire the assessment code immediately
+            touchAssessmentComplete()
+            
+            if (debug) { print("INPUT: Very fast gesture")}
+            
+        }
+        
         //always turn off the touch objects that ended in this set of touches
         UserInputTouchObjects.sharedInstance.turnOff(touches: touches)
         
@@ -453,6 +467,7 @@ public class XvUserInput:UIGestureRecognizer {
         
         //MARK: Rotation
         if (_isRotationOccurring){
+            print("INPUT: Rotation was occuring. Stop input.")
             //_isRotationOccurring = false //error: stops reset from happening
             return
         }
@@ -466,23 +481,11 @@ public class XvUserInput:UIGestureRecognizer {
             userInfo: ["dragEndedPoint": firstTouchEndedPoint]
         )
         
-        //MARK: Fast gesture assessment
-        //check to see if it's a very fast gesture
-        if (_touchAssessmentDelayTimer.isValid){
-            
-            //..stop the delay
-            _touchAssessmentDelayTimer.invalidate()
-            
-            //and fire the assessment code immediately
-            touchAssessmentComplete()
-            
-            if (debug) { print("INPUT: Very fast gesture")}
-            
-        }
+        
         
         //MARK: Swipe
         if (_isSwipeOccurring){
-            
+            if (debug) { print("INPUT: Swipe was occuring. Stop input.")}
             _swipeEnded(atTouchPoint: firstTouchEndedPoint)
             return
         }
