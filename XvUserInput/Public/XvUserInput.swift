@@ -579,7 +579,7 @@ public class XvUserInput:UIGestureRecognizer {
     
     //MARK: - SHAKE
     
-    public func motionEnded(motion: UIEventSubtype, with event: UIEvent) {
+    public func motionEnded(motion: UIEvent.EventSubtype, with event: UIEvent) {
         
         if motion == .motionShake {
             
